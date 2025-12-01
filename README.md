@@ -19,8 +19,8 @@ make fclean
 
 ## 🌐 Accès
 
-- **Frontend**: https://localhost
-- **Backend API**: https://localhost/api/health
+- **Frontend**: https://localhost:8443
+- **Backend API**: https://localhost:8443/api/health
 
 ⚠️ **Note**: Certificat SSL auto-signé, accepter l'avertissement du navigateur.
 
@@ -47,6 +47,21 @@ ft_transcendence/
 
 ## 👥 Équipe
 
-- [L     ]
-- [R     ]
-- [H     ]
+- Lisa (lisalana)
+- [Nom coéquipier 2]
+- [Nom coéquipier 3]
+
+## 📝 Prérequis
+
+- Docker & Docker Compose
+- Make
+- Git
+
+## 🔧 Installation pour les coéquipiers
+```bash
+git clone https://github.com/lisalana/ft_transcendence.git
+cd ft_transcendence
+make
+```
+
+Puis accédez à https://localhost:8443
