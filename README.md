@@ -47,9 +47,9 @@ ft_transcendence/
 
 ## 👥 Équipe
 
-- Lisa (lisalana)
-- [Nom coéquipier 2]
-- [Nom coéquipier 3]
+- [Lisa]
+- [R]
+- [H]
 
 ## 📝 Prérequis
 
