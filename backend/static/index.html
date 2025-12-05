@@ -3,9 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ft_transcendence</title>
+    <title>ft_transcendence - Host</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #4caf50;
+            --error: #f44336;
+            --bg: #1a1a2e;
+            --text: #ffffff;
+            --warning: #ff9800;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -14,549 +24,409 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: var(--bg);
+            color: var(--text);
             min-height: 100vh;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
         }
 
         .container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
             padding: 40px;
-            max-width: 500px;
-            width: 100%;
+            max-width: 900px;
+            width: 95%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            position: relative;
         }
 
         h1 {
-            color: #333;
+            font-size: 3rem;
             margin-bottom: 30px;
-            text-align: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .status {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #f5f5f5;
-            border-radius: 5px;
-        }
-
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 10px;
-            animation: pulse 2s infinite;
-        }
-
-        .status-indicator.connected {
-            background-color: #4caf50;
-        }
-
-        .status-indicator.disconnected {
-            background-color: #f44336;
-            animation: none;
-        }
-
-        .status-text {
-            color: #666;
-            font-size: 14px;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.5;
-            }
-        }
-
-        .game-code-section {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .game-code-section input {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-
-        .game-code-section button {
-            padding: 12px 20px;
-            background: #667eea;
-            color: white;
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.2rem;
             border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: background 0.3s;
-        }
-
-        .game-code-section button:hover {
-            background: #764ba2;
-        }
-
-        .game-code-section #createGameButton {
-            background: #4caf50;
-            white-space: nowrap;
-        }
-
-        .game-code-section #createGameButton:hover {
-            background: #45a049;
-        }
-
-        .message-input {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        input[type="text"] {
-            flex: 1;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        input[type="text"]:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        button {
-            padding: 10px 20px;
-            background: #667eea;
+            border-radius: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
-            border: none;
-            border-radius: 5px;
             cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: background 0.3s;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        button:hover {
-            background: #764ba2;
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(118, 75, 162, 0.4);
         }
 
-        button:disabled {
-            background: #ccc;
+        .btn:disabled {
+            background: #555;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.7;
         }
 
-        .messages {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            height: 300px;
-            overflow-y: auto;
-            padding: 15px;
-            background: #fafafa;
-        }
-
-        .qr-code-section {
+        .game-area {
             display: none;
-            text-align: center;
             margin-top: 20px;
-            padding: 20px;
-            background: #f9f9f9;
-            border-radius: 5px;
         }
 
-        .qr-code-section.active {
+        .game-area.active {
             display: block;
         }
 
-        .qr-codes-container {
+        canvas {
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            background: #000;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            max-width: 100%;
+            height: auto;
+        }
+
+        .lobby-info {
             display: flex;
-            gap: 30px;
             justify-content: center;
+            gap: 40px;
+            margin: 30px 0;
             flex-wrap: wrap;
-            margin-top: 15px;
         }
 
-        .qr-player {
-            flex: 1;
-            min-width: 200px;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-            border: 1px solid #e0e0e0;
+        .player-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            width: 250px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
         }
 
-        .qr-player h4 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 14px;
+        .player-card.connected {
+            border-color: var(--success);
+            background: rgba(76, 175, 80, 0.1);
         }
 
-        .qr-code-clickable {
-            transition: transform 0.2s;
-        }
-
-        .qr-code-clickable:hover {
-            transform: scale(1.05);
-        }
-
-        #qrcode-player1, #qrcode-player2 {
-            display: inline-block;
-            padding: 10px;
-            background: white;
-            border-radius: 5px;
-        }
-
-        .qr-code-section h3 {
-            color: #333;
+        .player-card h3 {
             margin-bottom: 15px;
-            font-size: 16px;
+            font-size: 1.2rem;
         }
 
-        #qrcode {
+        .status-badge {
             display: inline-block;
-            padding: 10px;
-            background: white;
-            border-radius: 5px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.1);
+            margin-bottom: 15px;
         }
 
-        .game-link {
-            margin-top: 15px;
-            padding: 10px;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            word-break: break-all;
-            font-size: 12px;
-            color: #666;
+        .connected .status-badge {
+            background: var(--success);
+            color: white;
         }
 
-        .message {
+        .qr-placeholder {
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .controls-hint {
+            margin-top: 20px;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #startBtn {
+            background: var(--success);
+            margin-top: 20px;
+            font-size: 1.5rem;
+            padding: 20px 60px;
+            animation: pulse 2s infinite;
+        }
+
+        #startBtn:disabled {
+            background: #555;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(76, 175, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+
+        #pauseOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 20px;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+        
+        .pause-message {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--warning);
             margin-bottom: 10px;
-            padding: 10px;
-            background: white;
-            border-left: 3px solid #667eea;
-            border-radius: 3px;
-            font-size: 13px;
-            word-wrap: break-word;
+        }
+        
+        .pause-subtext {
+            color: #ddd;
         }
 
-        .message.system {
-            border-left-color: #ff9800;
-            color: #ff9800;
-        }
-
-        .message.error {
-            border-left-color: #f44336;
-            color: #f44336;
-        }
-
-        .empty-state {
-            text-align: center;
-            color: #999;
-            padding: 40px 20px;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎮 ft_transcendence</h1>
+        <h1>🏓 Pong Master</h1>
 
-        <div class="status">
-            <div class="status-indicator disconnected" id="statusIndicator"></div>
-            <div class="status-text" id="statusText">Déconnecté</div>
+        <!-- Initial Screen -->
+        <div id="startScreen">
+            <p style="margin-bottom: 30px; font-size: 1.1rem; color: #ddd;">Host a game on your screen and use your phones as controllers.</p>
+            <button id="createGameBtn" class="btn">Create New Game</button>
         </div>
 
-        <div class="game-code-section" id="gameCodeSection">
-            <input
-                type="text"
-                id="gameCodeInput"
-                placeholder="Entrez le code de la partie..."
-            />
-            <button id="connectButton">Se connecter</button>
-            <button id="createGameButton">Créer une partie</button>
-        </div>
-
-        <div class="message-input" id="messageSection" style="display: none;">
-            <input
-                type="text"
-                id="messageInput"
-                placeholder="Entrez un message..."
-                disabled
-            />
-            <button id="sendButton" disabled>Envoyer</button>
-        </div>
-
-        <div class="messages" id="messagesList">
-            <div class="empty-state">Connexion à la WebSocket...</div>
-        </div>
-
-        <div class="qr-code-section" id="qrCodeSection">
-            <h3>📱 Partager cette salle</h3>
-            
-            <div class="qr-codes-container">
-                <div class="qr-player">
-                    <h4>Joueur 1</h4>
-                    <div id="qrcode-player1" class="qr-code-clickable" style="cursor: pointer; display: inline-block;"></div>
-                    <div class="game-link">
-                        <small id="gameLink-player1"></small>
-                    </div>
-                </div>
-                
-                <div class="qr-player">
-                    <h4>Joueur 2</h4>
-                    <div id="qrcode-player2" class="qr-code-clickable" style="cursor: pointer; display: inline-block;"></div>
-                    <div class="game-link">
-                        <small id="gameLink-player2"></small>
-                    </div>
+        <!-- Lobby / Game Screen -->
+        <div id="gameScreen" class="game-area">
+            <!-- Canvas (Hidden initially) -->
+            <div id="canvasContainer" class="hidden" style="margin-top: 30px; position: relative;">
+                <canvas id="gameCanvas" width="800" height="400"></canvas>
+                <!-- Pause Overlay -->
+                <div id="pauseOverlay" class="hidden">
+                    <div class="pause-message">GAME PAUSED</div>
+                    <div class="pause-subtext">Waiting for player to reconnect...</div>
                 </div>
             </div>
+
+            <!-- Lobby Info / Player Cards (Displayed in lobby and when paused) -->
+            <div class="lobby-info" id="lobbyInfo">
+                <!-- Player 1 Card -->
+                <div class="player-card" id="p1Card">
+                    <h3>Player 1 (Left)</h3>
+                    <div class="status-badge" id="p1Status">Waiting for connection...</div>
+                    <div id="qr-p1" class="qr-placeholder"></div>
+                    <div class="controls-hint">Scan to join</div>
+                </div>
+
+                <!-- Player 2 Card -->
+                <div class="player-card" id="p2Card">
+                    <h3>Player 2 (Right)</h3>
+                    <div class="status-badge" id="p2Status">Waiting for connection...</div>
+                    <div id="qr-p2" class="qr-placeholder"></div>
+                    <div class="controls-hint">Scan to join</div>
+                </div>
+            </div>
+
+            <button id="startBtn" class="btn" disabled>Start Game</button>
         </div>
     </div>
 
     <script>
-        const statusIndicator = document.getElementById('statusIndicator');
-        const statusText = document.getElementById('statusText');
-        const messageInput = document.getElementById('messageInput');
-        const sendButton = document.getElementById('sendButton');
-        const messagesList = document.getElementById('messagesList');
-        const gameCodeInput = document.getElementById('gameCodeInput');
-        const connectButton = document.getElementById('connectButton');
-        const createGameButton = document.getElementById('createGameButton');
-        const gameCodeSection = document.getElementById('gameCodeSection');
-        const messageSection = document.getElementById('messageSection');
-        const qrCodeSection = document.getElementById('qrCodeSection');
+        const startScreen = document.getElementById('startScreen');
+        const gameScreen = document.getElementById('gameScreen');
+        const createGameBtn = document.getElementById('createGameBtn');
+        const startBtn = document.getElementById('startBtn');
+        const lobbyInfo = document.getElementById('lobbyInfo');
+        const canvasContainer = document.getElementById('canvasContainer');
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const pauseOverlay = document.getElementById('pauseOverlay');
 
+        const p1Card = document.getElementById('p1Card');
+        const p2Card = document.getElementById('p2Card');
+        const p1Status = document.getElementById('p1Status');
+        const p2Status = document.getElementById('p2Status');
+
+        let gameId = null;
         let ws = null;
-        let isConnected = false;
-        let currentGameId = null;
+        let playersConnected = { 1: false, 2: false };
+        let gameState = null;
 
-        function getWebSocketURL(gameId) {
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const host = window.location.host;
-            return `${protocol}//${host}/api/game/${gameId}/websocket`;
+        createGameBtn.addEventListener('click', createGame);
+        startBtn.addEventListener('click', startGame);
+
+        async function createGame() {
+            try {
+                const res = await fetch('/api/game/create', { method: 'POST' });
+                const data = await res.json();
+                
+                if (data.status === 'ok') {
+                    gameId = data.gameId;
+                    initLobby();
+                }
+            } catch (e) {
+                console.error('Failed to create game:', e);
+                alert('Error creating game');
+            }
         }
 
-        function getGameShareURL(gameId, playerId) {
-            const protocol = window.location.protocol;
+        function initLobby() {
+            startScreen.classList.add('hidden');
+            gameScreen.classList.add('active');
+            
+            // Generate QR Codes
+            generateQR('qr-p1', getControllerUrl(1));
+            generateQR('qr-p2', getControllerUrl(2));
+
+            // Connect WebSocket
+            connectWebSocket();
+        }
+
+        function getControllerUrl(playerId) {
             const host = window.location.host;
+            const protocol = window.location.protocol;
             return `${protocol}//${host}/controller.html?gameId=${gameId}&playerId=${playerId}`;
         }
 
-        function generateQRCodes(gameId) {
-            // QR Code pour joueur 1
-            const url1 = getGameShareURL(gameId, '1');
-            const qrcode1 = document.getElementById('qrcode-player1');
-            const gameLink1 = document.getElementById('gameLink-player1');
-            
-            qrcode1.innerHTML = '';
-            new QRCode(qrcode1, {
-                text: url1,
-                width: 150,
-                height: 150,
-                colorDark: '#667eea',
-                colorLight: '#ffffff',
+        function generateQR(elementId, text) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = '';
+            new QRCode(el, {
+                text: text,
+                width: 128,
+                height: 128,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H
             });
             
-            gameLink1.textContent = url1;
-            
-            // Ajouter le listener pour ouvrir la nouvelle fenêtre
-            qrcode1.style.cursor = 'pointer';
-            qrcode1.addEventListener('click', () => {
-                window.open(url1, `controller-${gameId}-1`, 'width=500,height=600');
-            });
-
-            // QR Code pour joueur 2
-            const url2 = getGameShareURL(gameId, '2');
-            const qrcode2 = document.getElementById('qrcode-player2');
-            const gameLink2 = document.getElementById('gameLink-player2');
-            
-            qrcode2.innerHTML = '';
-            new QRCode(qrcode2, {
-                text: url2,
-                width: 150,
-                height: 150,
-                colorDark: '#764ba2',
-                colorLight: '#ffffff',
-                correctLevel: QRCode.CorrectLevel.H
-            });
-            
-            gameLink2.textContent = url2;
-            
-            // Ajouter le listener pour ouvrir la nouvelle fenêtre
-            qrcode2.style.cursor = 'pointer';
-            qrcode2.addEventListener('click', () => {
-                window.open(url2, `controller-${gameId}-2`, 'width=500,height=600');
-            });
-
-            qrCodeSection.classList.add('active');
+            // Make QR clickable for testing on same device
+            el.style.cursor = 'pointer';
+            el.onclick = () => window.open(text, '_blank', 'width=400,height=600');
         }
 
-        function addMessage(content, type = 'normal') {
-            if (messagesList.querySelector('.empty-state')) {
-                messagesList.innerHTML = '';
-            }
-
-            const messageEl = document.createElement('div');
-            messageEl.className = `message ${type}`;
-            messageEl.textContent = content;
-            messagesList.appendChild(messageEl);
-            messagesList.scrollTop = messagesList.scrollHeight;
-        }
-
-        function updateStatus(connected) {
-            isConnected = connected;
-            if (connected) {
-                statusIndicator.classList.remove('disconnected');
-                statusIndicator.classList.add('connected');
-                statusText.textContent = 'Connecté';
-                messageInput.disabled = false;
-                sendButton.disabled = false;
-                addMessage('✓ Connecté au serveur WebSocket', 'system');
-            } else {
-                statusIndicator.classList.remove('connected');
-                statusIndicator.classList.add('disconnected');
-                statusText.textContent = 'Déconnecté';
-                messageInput.disabled = true;
-                sendButton.disabled = true;
-                messagesList.innerHTML = '<div class="empty-state">Connexion fermée. Rechargez la page pour reconnecter.</div>';
-            }
-        }
-
-        function connect(gameId) {
-            const wsURL = getWebSocketURL(gameId);
-            console.log('Tentative de connexion à:', wsURL);
-
-            ws = new WebSocket(wsURL);
-
-            ws.onopen = () => {
-                console.log('WebSocket connectée');
-                currentGameId = gameId;
-                gameCodeSection.style.display = 'none';
-                messageSection.style.display = 'flex';
-                generateQRCodes(gameId);
-                updateStatus(true);
-            };
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/api/game/${gameId}/websocket`;
             
+            ws = new WebSocket(wsUrl);
+
             ws.onmessage = (event) => {
                 try {
-                    const messageData = JSON.parse(event.data);
-                    if (messageData.type === 'game_state_update') {
-                        console.log('Mise à jour de l\'état du jeu reçue:', messageData.state);
-                        // Traitez ici la mise à jour de l'état du jeu
-                    }  else {
-                        console.log('Message reçu:', event.data);
-                        addMessage(messageData.message);
-                    }
-                } catch (error) {
-                    console.log('Message reçu:', event.data);
-                     addMessage(event.data);
+                    const data = JSON.parse(event.data);
+                    handleMessage(data);
+                } catch (e) {
+                    // Ignore non-JSON
                 }
             };
-
-            ws.onerror = (error) => {
-                console.error('Erreur WebSocket:', error);
-                addMessage('✗ Erreur de connexion', 'error');
-            };
-
-            ws.onclose = () => {
-                console.log('WebSocket fermée');
-                updateStatus(false);
-                // Tentative de reconnexion après 3 secondes
-                // setTimeout(() => connect(gameId), 3000);
-            };
         }
 
-        function sendMessage() {
-            if (!isConnected || !messageInput.value.trim()) return;
-
-            const message = messageInput.value.trim();
-            console.log('Envoi du message:', message);
-
-            try {
-                ws.send(message);
-                messageInput.value = '';
-            } catch (error) {
-                console.error('Erreur lors de l\'envoi:', error);
-                addMessage('✗ Erreur lors de l\'envoi du message', 'error');
+        function handleMessage(data) {
+            if (data.type === 'player_connection') {
+                updatePlayerStatus(data.playerId, data.connected);
+            } 
+            else if (data.type === 'game_started') {
+                lobbyInfo.classList.add('hidden');
+                startBtn.classList.add('hidden');
+                canvasContainer.classList.remove('hidden');
+            }
+            else if (data.type === 'game_paused') {
+                pauseOverlay.classList.remove('hidden');
+                lobbyInfo.classList.remove('hidden'); // Show QR codes
+            }
+            else if (data.type === 'game_resumed') {
+                pauseOverlay.classList.add('hidden');
+                lobbyInfo.classList.add('hidden'); // Hide QR codes
+            }
+            else if (data.type === 'game_state_update') {
+                gameState = data.state;
+                drawGame();
             }
         }
 
-        function handleConnect() {
-            const gameCode = gameCodeInput.value.trim();
-            if (!gameCode) {
-                addMessage('✗ Veuillez entrer un code de partie', 'error');
-                return;
-            }
+        function updatePlayerStatus(playerId, connected) {
+            playersConnected[playerId] = connected;
             
-            connect(gameCode);
+            const card = playerId === 1 ? p1Card : p2Card;
+            const status = playerId === 1 ? p1Status : p2Status;
+
+            if (connected) {
+                card.classList.add('connected');
+                status.textContent = 'Ready!';
+            } else {
+                card.classList.remove('connected');
+                status.textContent = 'Waiting...';
+            }
+
+            // Enable start button if both are connected
+            if (playersConnected[1] && playersConnected[2]) {
+                startBtn.disabled = false;
+                startBtn.textContent = "START GAME";
+            } else {
+                startBtn.disabled = true;
+                startBtn.textContent = "Waiting for Players...";
+            }
         }
 
-        function handleCreateGame() {
-            console.log('Création d\'une nouvelle partie...');
-            addMessage('⏳ Création de la partie...', 'system');
+        function startGame() {
+            if (ws) {
+                ws.send(JSON.stringify({ type: 'start_game' }));
+            }
+        }
+
+        function drawGame() {
+            if (!gameState) return;
+
+            // Clear
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Net
+            ctx.strokeStyle = '#333';
+            ctx.setLineDash([10, 15]);
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, 0);
+            ctx.lineTo(canvas.width / 2, canvas.height);
+            ctx.stroke();
+
+            // Paddles
+            ctx.fillStyle = '#667eea';
+            ctx.fillRect(gameState.player1_position.x, gameState.player1_position.y, 10, 50); // Player 1
             
-            fetch('/api/game/create', { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'ok') {
-                        console.log('Partie créée avec l\'ID:', data.gameId);
-                        gameCodeInput.value = data.gameId;
-                        addMessage(`✓ Partie créée! Code: ${data.gameId}`, 'system');
-                        connect(data.gameId);
-                    } else {
-                        addMessage('✗ Erreur lors de la création de la partie', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Erreur lors de la création du jeu:', error);
-                    addMessage('✗ Erreur lors de la création de la partie', 'error');
-                });
-        }
+            ctx.fillStyle = '#764ba2';
+            ctx.fillRect(gameState.player2_position.x - 10, gameState.player2_position.y, 10, 50); // Player 2
 
-        // Event listeners
-        connectButton.addEventListener('click', handleConnect);
-        createGameButton.addEventListener('click', handleCreateGame);
-        gameCodeInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                handleConnect();
-            }
-        });
-
-        sendButton.addEventListener('click', sendMessage);
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-
-        // Vérifier si un gameId est dans l'URL
-        function checkURLParams() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const gameId = urlParams.get('gameId');
+            // Ball
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(gameState.ball_position.x, gameState.ball_position.y, 6, 0, Math.PI * 2);
+            ctx.fill();
             
-            if (gameId) {
-                console.log('Game ID trouvé dans l\'URL:', gameId);
-                gameCodeInput.value = gameId;
-                // Attendre un peu pour que le DOM soit complètement chargé
-                setTimeout(() => {
-                    handleConnect();
-                }, 500);
-            }
+            // Glow effect for ball
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "white";
+            ctx.fill();
+            ctx.shadowBlur = 0;
         }
-
-        // Appeler la fonction au chargement
-        checkURLParams();
     </script>
 </body>
 </html>

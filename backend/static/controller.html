@@ -2,366 +2,181 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contrôleur - ft_transcendence</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Controller</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #000;
+            font-family: sans-serif;
+        }
+
+        #error-msg {
+            color: white;
+            text-align: center;
+            margin-top: 50px;
+            display: none;
             padding: 20px;
         }
 
-        .container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            max-width: 400px;
-            width: 100%;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .header h1 {
-            color: #333;
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        .status {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 14px;
-            color: #666;
-        }
-
-        .status-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: #f44336;
-            animation: pulse 2s infinite;
-        }
-
-        .status-indicator.connected {
-            background-color: #4caf50;
-            animation: none;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.5;
-            }
-        }
-
-        .controls {
+        .controller-container {
             display: flex;
             flex-direction: column;
-            gap: 30px;
-            align-items: center;
+            width: 100%;
+            height: 100%;
         }
 
-        .arrow-btn {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            border: none;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            font-size: 40px;
-            cursor: pointer;
+        .btn-area {
+            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        .arrow-btn:hover:not(:disabled) {
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-        }
-
-        .arrow-btn:active:not(:disabled) {
-            transform: scale(0.95);
-        }
-
-        .arrow-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .arrow-up {
-            margin-bottom: 20px;
-        }
-
-        .arrow-down {
-            margin-top: 20px;
-        }
-
-        .game-code-input {
-            margin-bottom: 30px;
-        }
-
-        .game-code-input input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        .game-code-input input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .game-code-input button {
-            width: 100%;
-            margin-top: 10px;
-            padding: 12px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 5rem;
+            color: rgba(255, 255, 255, 0.5);
+            transition: background 0.1s;
             cursor: pointer;
-            transition: background 0.3s;
         }
 
-        .game-code-input button:hover {
-            background: #764ba2;
+        .btn-up {
+            background: linear-gradient(to bottom, #667eea, #5a6fd6);
+            border-bottom: 2px solid rgba(0,0,0,0.2);
         }
 
-        .game-code-input button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
+        .btn-up:active, .btn-up.active {
+            background: #4e5db3;
+            color: rgba(255, 255, 255, 0.8);
         }
 
-        .info {
-            background: #f5f5f5;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            border-radius: 4px;
-            font-size: 12px;
-            color: #666;
-            margin-top: 30px;
+        .btn-down {
+            background: linear-gradient(to bottom, #764ba2, #663d91);
+            border-top: 2px solid rgba(0,0,0,0.2);
+        }
+
+        .btn-down:active, .btn-down.active {
+            background: #55327a;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .status-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px;
             text-align: center;
+            color: white;
+            background: rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+            font-size: 0.8rem;
         }
+
+        .connected { color: #4caf50; }
+        .disconnected { color: #f44336; }
+
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🎮 Contrôleur</h1>
-            <div class="status">
-                <div class="status-indicator" id="statusIndicator"></div>
-                <span id="statusText">Déconnecté</span>
-            </div>
-        </div>
+    <div id="error-msg">
+        <h2>Invalid Game Link</h2>
+        <p>Please scan the QR code again.</p>
+    </div>
 
-        <div class="game-code-input">
-            <input
-                type="text"
-                id="gameCodeInput"
-                placeholder="Entrez le code de la partie..."
-                autocomplete="off"
-            />
-            <button id="connectButton">Se connecter</button>
+    <div id="controller" class="controller-container">
+        <div class="status-bar">
+            <span id="status-text" class="disconnected">Connecting...</span>
         </div>
-
-        <div class="controls" id="controls" style="display: none;">
-            <button class="arrow-btn arrow-up" id="upButton" title="Flèche vers le haut">⬆️</button>
-            <button class="arrow-btn arrow-down" id="downButton" title="Flèche vers le bas">⬇️</button>
+        
+        <div id="btn-up" class="btn-area btn-up">
+            ▲
         </div>
-
-        <div class="info">
-            📱 Entrez le code de la salle pour contrôler le jeu
+        <div id="btn-down" class="btn-area btn-down">
+            ▼
         </div>
     </div>
 
     <script>
-        const gameCodeInput = document.getElementById('gameCodeInput');
-        const connectButton = document.getElementById('connectButton');
-        const upButton = document.getElementById('upButton');
-        const downButton = document.getElementById('downButton');
-        const statusIndicator = document.getElementById('statusIndicator');
-        const statusText = document.getElementById('statusText');
-        const controls = document.getElementById('controls');
+        const statusText = document.getElementById('status-text');
+        const btnUp = document.getElementById('btn-up');
+        const btnDown = document.getElementById('btn-down');
+        const controllerDiv = document.getElementById('controller');
+        const errorMsg = document.getElementById('error-msg');
 
-        let ws = null;
-        let isConnected = false;
-        let currentGameId = null;
-        let currentPlayerId = null;
+        // Get params
+        const urlParams = new URLSearchParams(window.location.search);
+        const gameId = urlParams.get('gameId');
+        const playerId = urlParams.get('playerId');
 
-        function getWebSocketURL(gameId) {
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const host = window.location.host;
-            return `${protocol}//${host}/api/game/${gameId}/${currentPlayerId}/controller_scocket`;
+        if (!gameId || !playerId) {
+            controllerDiv.style.display = 'none';
+            errorMsg.style.display = 'block';
+            throw new Error('Missing params');
         }
 
-        function updateStatus(connected) {
-            isConnected = connected;
-            if (connected) {
-                statusIndicator.classList.add('connected');
-                statusText.textContent = 'Connecté';
-                connectButton.disabled = true;
-                gameCodeInput.disabled = true;
-                upButton.disabled = false;
-                downButton.disabled = false;
-                controls.style.display = 'flex';
-            } else {
-                statusIndicator.classList.remove('connected');
-                statusText.textContent = 'Déconnecté';
-                connectButton.disabled = false;
-                gameCodeInput.disabled = false;
-                upButton.disabled = true;
-                downButton.disabled = true;
-                controls.style.display = 'none';
+        // WebSocket
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/api/game/${gameId}/${playerId}/controller_scocket`;
+        let ws = new WebSocket(wsUrl);
+
+        ws.onopen = () => {
+            statusText.textContent = 'Connected';
+            statusText.className = 'connected';
+        };
+
+        ws.onclose = () => {
+            statusText.textContent = 'Disconnected';
+            statusText.className = 'disconnected';
+        };
+
+        ws.onerror = (err) => {
+            console.error('WS Error', err);
+            statusText.textContent = 'Connection Error';
+            statusText.className = 'disconnected';
+        };
+
+        // Input handling
+        function sendCommand(cmd) {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'controller', command: cmd }));
             }
         }
 
-        function connect(gameId) {
-            const wsURL = getWebSocketURL(gameId);
-            console.log('Connexion au jeu:', wsURL);
+        const handleStart = (dir, elem) => (e) => {
+            e.preventDefault(); // Prevent scroll/zoom
+            elem.classList.add('active');
+            sendCommand(dir);
+        };
 
-            ws = new WebSocket(wsURL);
-
-            ws.onopen = () => {
-                console.log('Contrôleur connecté');
-                currentGameId = gameId;
-                updateStatus(true);
-            };
-
-            ws.onmessage = (event) => {
-                console.log('Message reçu:', event.data);
-            };
-
-            ws.onerror = (error) => {
-                console.error('Erreur WebSocket:', error);
-                statusText.textContent = 'Erreur de connexion';
-            };
-
-            ws.onclose = () => {
-                console.log('Contrôleur déconnecté');
-                updateStatus(false);
-                gameCodeInput.value = '';
-            };
-        }
-
-        function sendCommand(command) {
-            if (!isConnected || !ws) return;
-
-            try {
-                ws.send(JSON.stringify({
-                    type: 'controller',
-                    command: command
-                }));
-                console.log('Commande envoyée:', command);
-            } catch (error) {
-                console.error('Erreur lors de l\'envoi:', error);
-            }
-        }
-
-        function handleConnect() {
-            const gameCode = gameCodeInput.value.trim();
-            if (!gameCode) {
-                statusText.textContent = 'Entrez un code';
-                setTimeout(() => {
-                    statusText.textContent = isConnected ? 'Connecté' : 'Déconnecté';
-                }, 2000);
-                return;
-            }
-
-            connect(gameCode);
-        }
-
-        // Event listeners
-        connectButton.addEventListener('click', handleConnect);
-        gameCodeInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                handleConnect();
-            }
-        });
-
-        upButton.addEventListener('click', () => {
-            sendCommand('up');
-            upButton.style.transform = 'scale(0.9)';
-            setTimeout(() => {
-                upButton.style.transform = '';
-            }, 100);
-        });
-
-        upButton.addEventListener('keyup', () => {
+        const handleEnd = (elem) => (e) => {
+            e.preventDefault();
+            elem.classList.remove('active');
             sendCommand('stop');
-        });
+        };
 
-        downButton.addEventListener('click', () => {
-            sendCommand('down');
-            downButton.style.transform = 'scale(0.9)';
-            setTimeout(() => {
-                downButton.style.transform = '';
-            }, 100);
-        });
+        // Up Button
+        btnUp.addEventListener('touchstart', handleStart('up', btnUp), { passive: false });
+        btnUp.addEventListener('touchend', handleEnd(btnUp));
+        btnUp.addEventListener('mousedown', handleStart('up', btnUp));
+        btnUp.addEventListener('mouseup', handleEnd(btnUp));
+        btnUp.addEventListener('mouseleave', handleEnd(btnUp));
 
-                downButton.addEventListener('keyup', () => {
-            sendCommand('stop');
-        });
+        // Down Button
+        btnDown.addEventListener('touchstart', handleStart('down', btnDown), { passive: false });
+        btnDown.addEventListener('touchend', handleEnd(btnDown));
+        btnDown.addEventListener('mousedown', handleStart('down', btnDown));
+        btnDown.addEventListener('mouseup', handleEnd(btnDown));
+        btnDown.addEventListener('mouseleave', handleEnd(btnDown));
 
-        // Touches clavier
-        document.addEventListener('keydown', (e) => {
-            if (!isConnected) return;
-            
-            if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
-                e.preventDefault();
-                sendCommand('up');
-            } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
-                e.preventDefault();
-                sendCommand('down');
-            }
-        });
-
-        // Vérifier si un gameId est dans l'URL
-        function checkURLParams() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const gameId = urlParams.get('gameId');
-            const playerId = urlParams.get('playerId');
-
-            if (gameId && playerId) {
-                console.log('Game ID trouvé dans l\'URL:', gameId, 'Player ID:', playerId);
-                gameCodeInput.value = gameId;
-                currentPlayerId = playerId;
-                 handleConnect();
-            }
-        }
-
-        // Initialiser les boutons comme désactivés
-        updateStatus(false);
-
-        // Appeler la fonction au chargement
-        checkURLParams();
     </script>
 </body>
 </html>
