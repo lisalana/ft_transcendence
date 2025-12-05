@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ft_transcendence</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -164,6 +165,81 @@
             background: #fafafa;
         }
 
+        .qr-code-section {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+
+        .qr-code-section.active {
+            display: block;
+        }
+
+        .qr-codes-container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .qr-player {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .qr-player h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .qr-code-clickable {
+            transition: transform 0.2s;
+        }
+
+        .qr-code-clickable:hover {
+            transform: scale(1.05);
+        }
+
+        #qrcode-player1, #qrcode-player2 {
+            display: inline-block;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .qr-code-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        #qrcode {
+            display: inline-block;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .game-link {
+            margin-top: 15px;
+            padding: 10px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            word-break: break-all;
+            font-size: 12px;
+            color: #666;
+        }
+
         .message {
             margin-bottom: 10px;
             padding: 10px;
@@ -223,6 +299,28 @@
         <div class="messages" id="messagesList">
             <div class="empty-state">Connexion à la WebSocket...</div>
         </div>
+
+        <div class="qr-code-section" id="qrCodeSection">
+            <h3>📱 Partager cette salle</h3>
+            
+            <div class="qr-codes-container">
+                <div class="qr-player">
+                    <h4>Joueur 1</h4>
+                    <div id="qrcode-player1" class="qr-code-clickable" style="cursor: pointer; display: inline-block;"></div>
+                    <div class="game-link">
+                        <small id="gameLink-player1"></small>
+                    </div>
+                </div>
+                
+                <div class="qr-player">
+                    <h4>Joueur 2</h4>
+                    <div id="qrcode-player2" class="qr-code-clickable" style="cursor: pointer; display: inline-block;"></div>
+                    <div class="game-link">
+                        <small id="gameLink-player2"></small>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -236,6 +334,7 @@
         const createGameButton = document.getElementById('createGameButton');
         const gameCodeSection = document.getElementById('gameCodeSection');
         const messageSection = document.getElementById('messageSection');
+        const qrCodeSection = document.getElementById('qrCodeSection');
 
         let ws = null;
         let isConnected = false;
@@ -245,6 +344,62 @@
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
             const host = window.location.host;
             return `${protocol}//${host}/api/game/${gameId}/websocket`;
+        }
+
+        function getGameShareURL(gameId, playerId) {
+            const protocol = window.location.protocol;
+            const host = window.location.host;
+            return `${protocol}//${host}/controller.html?gameId=${gameId}&playerId=${playerId}`;
+        }
+
+        function generateQRCodes(gameId) {
+            // QR Code pour joueur 1
+            const url1 = getGameShareURL(gameId, '1');
+            const qrcode1 = document.getElementById('qrcode-player1');
+            const gameLink1 = document.getElementById('gameLink-player1');
+            
+            qrcode1.innerHTML = '';
+            new QRCode(qrcode1, {
+                text: url1,
+                width: 150,
+                height: 150,
+                colorDark: '#667eea',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            gameLink1.textContent = url1;
+            
+            // Ajouter le listener pour ouvrir la nouvelle fenêtre
+            qrcode1.style.cursor = 'pointer';
+            qrcode1.addEventListener('click', () => {
+                window.open(url1, `controller-${gameId}-1`, 'width=500,height=600');
+            });
+
+            // QR Code pour joueur 2
+            const url2 = getGameShareURL(gameId, '2');
+            const qrcode2 = document.getElementById('qrcode-player2');
+            const gameLink2 = document.getElementById('gameLink-player2');
+            
+            qrcode2.innerHTML = '';
+            new QRCode(qrcode2, {
+                text: url2,
+                width: 150,
+                height: 150,
+                colorDark: '#764ba2',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            gameLink2.textContent = url2;
+            
+            // Ajouter le listener pour ouvrir la nouvelle fenêtre
+            qrcode2.style.cursor = 'pointer';
+            qrcode2.addEventListener('click', () => {
+                window.open(url2, `controller-${gameId}-2`, 'width=500,height=600');
+            });
+
+            qrCodeSection.classList.add('active');
         }
 
         function addMessage(content, type = 'normal') {
@@ -289,16 +444,17 @@
                 currentGameId = gameId;
                 gameCodeSection.style.display = 'none';
                 messageSection.style.display = 'flex';
+                generateQRCodes(gameId);
                 updateStatus(true);
             };
-
+            
             ws.onmessage = (event) => {
                 try {
                     const messageData = JSON.parse(event.data);
                     if (messageData.type === 'game_state_update') {
                         console.log('Mise à jour de l\'état du jeu reçue:', messageData.state);
                         // Traitez ici la mise à jour de l'état du jeu
-                    } else {
+                    }  else {
                         console.log('Message reçu:', event.data);
                         addMessage(messageData.message);
                     }
@@ -383,6 +539,24 @@
                 sendMessage();
             }
         });
+
+        // Vérifier si un gameId est dans l'URL
+        function checkURLParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const gameId = urlParams.get('gameId');
+            
+            if (gameId) {
+                console.log('Game ID trouvé dans l\'URL:', gameId);
+                gameCodeInput.value = gameId;
+                // Attendre un peu pour que le DOM soit complètement chargé
+                setTimeout(() => {
+                    handleConnect();
+                }, 500);
+            }
+        }
+
+        // Appeler la fonction au chargement
+        checkURLParams();
     </script>
 </body>
 </html>
