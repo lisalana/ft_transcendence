@@ -8,9 +8,13 @@ build:
 	@echo "🔨 Building containers..."
 	docker compose build
 
+rebuild:
+	@echo "🔨 Rebuilding containers without cache..."
+	docker compose build --no-cache
+
 up:
 	@echo "🚀 Starting containers..."
-	docker compose up -d
+	docker compose up -d --build
 	@echo "✅ Services started!"
 	@echo "🌐 Frontend: https://localhost:8443"
 	@echo "🔧 Backend: https://localhost:8443/api/health"
