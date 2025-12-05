@@ -13,7 +13,7 @@ export default class Ball {
         this.resetBall();
     }
 
-    public update() {
+    public update(): number {
         // Update position
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
@@ -24,10 +24,14 @@ export default class Ball {
             this.position.y = Math.max(this.BALL_RADIUS, Math.min(this.CANVAS_HEIGHT - this.BALL_RADIUS, this.position.y));
         }
 
-        // Left and right wall collision (out of bounds = reset)
-        if (this.position.x < 0 || this.position.x > this.CANVAS_WIDTH) {
-            this.resetBall();
+        // Check for scoring
+        if (this.position.x < 0) {
+            return 2; // Player 2 scored
+        } else if (this.position.x > this.CANVAS_WIDTH) {
+            return 1; // Player 1 scored
         }
+        
+        return 0;
     }
 
     public checkPaddleCollision(paddleX: number, paddleY: number): boolean {
@@ -70,11 +74,11 @@ export default class Ball {
         return false;
     }
 
-    private resetBall() {
+    public resetBall() {
         this.position = { x: this.CANVAS_WIDTH / 2, y: this.CANVAS_HEIGHT / 2 };
         this.velocity = { 
-            x: (Math.random() > 0.5 ? 1 : -1) * 3.5,
-            y: (Math.random() - 0.5) * 3
+            x: (Math.random() > 0.5 ? 1 : -1) * 5,
+            y: (Math.random() - 0.5) * 4
         };
     }
 

@@ -271,6 +271,76 @@
         let playersConnected = { 1: false, 2: false };
         let gameState = null;
 
+        // Particle System
+        let particles = [];
+        let isGameOver = false;
+        let winnerId = null;
+        let animationFrameId = null;
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 6 + 2;
+                this.vx = Math.cos(angle) * speed;
+                this.vy = Math.sin(angle) * speed;
+                this.alpha = 1;
+                this.decay = Math.random() * 0.015 + 0.005;
+                this.gravity = 0.1;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += this.gravity;
+                this.alpha -= this.decay;
+                return this.alpha > 0;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, Math.random() * 4 + 2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function createExplosion(x, y, color) {
+            for (let i = 0; i < 150; i++) {
+                particles.push(new Particle(x, y, color));
+            }
+        }
+
+        function renderGameOver() {
+            if (!isGameOver) return;
+
+            // Semi-transparent clear for trail effect
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Update and draw particles
+            particles = particles.filter(p => p.update());
+            particles.forEach(p => p.draw(ctx));
+
+            // Draw Winner Text
+            ctx.save();
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 60px "Segoe UI", sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = winnerId === 1 ? '#667eea' : '#764ba2';
+            ctx.shadowBlur = 20;
+            ctx.fillText(`PLAYER ${winnerId} WINS!`, canvas.width / 2, canvas.height / 2);
+            ctx.restore();
+
+            animationFrameId = requestAnimationFrame(renderGameOver);
+        }
+
         createGameBtn.addEventListener('click', createGame);
         startBtn.addEventListener('click', startGame);
 
@@ -348,6 +418,7 @@
                 lobbyInfo.classList.add('hidden');
                 startBtn.classList.add('hidden');
                 canvasContainer.classList.remove('hidden');
+                isGameOver = false;
             }
             else if (data.type === 'game_paused') {
                 pauseOverlay.classList.remove('hidden');
@@ -358,8 +429,39 @@
                 lobbyInfo.classList.add('hidden'); // Hide QR codes
             }
             else if (data.type === 'game_state_update') {
-                gameState = data.state;
-                drawGame();
+                if (!isGameOver) {
+                    gameState = data.state;
+                    drawGame();
+                }
+            }
+            else if (data.type === 'game_over') {
+                winnerId = data.winnerId;
+                isGameOver = true;
+                
+                // Trigger explosion
+                const color = winnerId === 1 ? '#667eea' : '#764ba2';
+                createExplosion(canvas.width / 2, canvas.height / 2, color);
+                
+                // Start animation loop
+                if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                renderGameOver();
+
+                // Reset UI after delay
+                setTimeout(() => {
+                    isGameOver = false;
+                    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                    
+                    canvasContainer.classList.add('hidden');
+                    lobbyInfo.classList.remove('hidden');
+                    startBtn.classList.remove('hidden');
+                    startBtn.disabled = false;
+                    startBtn.textContent = "START GAME";
+                    gameState = null;
+                    particles = [];
+                    
+                    // Reset scores visualization
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }, 5000);
             }
         }
 
@@ -426,6 +528,15 @@
             ctx.shadowColor = "white";
             ctx.fill();
             ctx.shadowBlur = 0;
+
+            // Scores
+            if (gameState.score) {
+                ctx.font = "bold 48px sans-serif";
+                ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+                ctx.textAlign = "center";
+                ctx.fillText(gameState.score.p1, canvas.width / 4, 60);
+                ctx.fillText(gameState.score.p2, (canvas.width / 4) * 3, 60);
+            }
         }
     </script>
 </body>

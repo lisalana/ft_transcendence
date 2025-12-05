@@ -8,6 +8,7 @@ export type GameState = {
     player2_position: { x: number; y: number; };
     ball_position: { x: number; y: number; };
     ball_velocity: { x: number; y: number; };
+    score: { p1: number; p2: number; };
 };
 
 export default class Game {
@@ -20,6 +21,7 @@ export default class Game {
         player2_position: { x: 800, y: 350 / 2 },
         ball_position: { x: 800 / 2, y: 350 / 2 },
         ball_velocity: { x: 0, y: 0 },
+        score: { p1: 0, p2: 0 },
     };
 
     public gameId: string = Math.random().toString(36).substring(2, 10);
@@ -72,7 +74,19 @@ export default class Game {
             }
 
             // Update ball
-            this.ball.update();
+            const scorer = this.ball.update();
+            if (scorer !== 0) {
+                if (scorer === 1) this.state.score.p1++;
+                else if (scorer === 2) this.state.score.p2++;
+
+                if (this.state.score.p1 >= 5 || this.state.score.p2 >= 5) {
+                    this.stop();
+                    this.broadcast({ type: 'game_over', winnerId: this.state.score.p1 >= 5 ? 1 : 2 });
+                    return;
+                } else {
+                    this.ball.resetBall();
+                }
+            }
 
             // Check paddle collisions
             this.ball.checkPaddleCollision(this.players[0].position.x, this.players[0].position.y);
@@ -80,7 +94,7 @@ export default class Game {
 
             // Update and broadcast game state
             this.updateGameState();
-        }, 10); // 100 FPS
+        }, 16); // 60 FPS
     }
 
     private stopGameLoop() {
@@ -122,6 +136,8 @@ export default class Game {
     public start() {
         if (!this.isActive) {
             this.isActive = true;
+            this.state.score = { p1: 0, p2: 0 }; // Reset score
+            this.ball.resetBall();
             this.startGameLoop();
             console.log('Game started');
             this.broadcast({ type: 'game_started' });
