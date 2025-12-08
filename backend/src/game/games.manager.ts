@@ -1,6 +1,10 @@
-import { Game, TwoPlayersGame, ThreePlayersGame, FourPlayersGame } from "./game";
+import { FastifyApp } from "../fastify";
+import { Game } from "./game";
+import { TwoPlayersGame } from "./modes/twoPlayersGame";
+import { ThreePlayersGame } from "./modes/threePlayersGame";
+import { FourPlayersGame } from "./modes/fourPlayersGame";
 
-export class GamesManager {
+export default class GamesManager {
     private instances: Map<string, Game> = new Map();
 
     public createGame(app: any, gameId: string, mode: string): Game {

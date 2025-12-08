@@ -5,8 +5,8 @@ import websocketPlugin from '@fastify/websocket';
 import { ApiRoutes, WebsocketRoutes } from './api/routes';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import Game from './game/game';
-import { GamesManager } from './game/games.manager';
+import {Game} from './game/game';
+import GamesManager from './game/games.manager';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
