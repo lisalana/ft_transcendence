@@ -512,10 +512,14 @@
 
             // Paddles
             ctx.fillStyle = '#667eea';
-            ctx.fillRect(gameState.player1_position.x, gameState.player1_position.y, 10, 50); // Player 1
+            if (gameState.players_position && gameState.players_position[0]) {
+                ctx.fillRect(gameState.players_position[0].x, gameState.players_position[0].y, 10, 50); // Player 1
+            }
             
             ctx.fillStyle = '#764ba2';
-            ctx.fillRect(gameState.player2_position.x - 10, gameState.player2_position.y, 10, 50); // Player 2
+            if (gameState.players_position && gameState.players_position[1]) {
+                ctx.fillRect(gameState.players_position[1].x - 10, gameState.players_position[1].y, 10, 50); // Player 2
+            }
 
             // Ball
             ctx.fillStyle = '#fff';
@@ -534,8 +538,8 @@
                 ctx.font = "bold 48px sans-serif";
                 ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
                 ctx.textAlign = "center";
-                ctx.fillText(gameState.score.p1, canvas.width / 4, 60);
-                ctx.fillText(gameState.score.p2, (canvas.width / 4) * 3, 60);
+                ctx.fillText(gameState.score[0], canvas.width / 4, 60);
+                ctx.fillText(gameState.score[1], (canvas.width / 4) * 3, 60);
             }
         }
     </script>

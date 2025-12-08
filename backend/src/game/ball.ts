@@ -1,6 +1,8 @@
+import { Vector2 } from "./game";
+
 export default class Ball {
-    public position: { x: number; y: number } = { x: 400, y: 175 };
-    public velocity: { x: number; y: number } = { x: 5, y: 3 };
+    public position: Vector2 = { x: 400, y: 175 };
+    public velocity: Vector2 = { x: 5, y: 3 };
     
     private readonly CANVAS_WIDTH = 800;
     private readonly CANVAS_HEIGHT = 400;

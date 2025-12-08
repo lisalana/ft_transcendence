@@ -3,12 +3,13 @@ import type { WebSocket } from '@fastify/websocket';
 import Player from "./player";
 import Ball from "./ball";
 
+export type Vector2 = { x: number; y: number; };
+
 export type GameState = {
-    player1_position: { x: number; y: number; };
-    player2_position: { x: number; y: number; };
-    ball_position: { x: number; y: number; };
-    ball_velocity: { x: number; y: number; };
-    score: { p1: number; p2: number; };
+    players_position: Vector2[];
+    ball_position: Vector2;
+    ball_velocity: Vector2;
+    score: number[];
 };
 
 export default class Game {
@@ -17,17 +18,27 @@ export default class Game {
     public ball: Ball = new Ball();
 
     public state: GameState = {
-        player1_position: { x: 0, y: 350 / 2 },
-        player2_position: { x: 800, y: 350 / 2 },
+        players_position: [{ x: 0, y: 350 / 2 }, { x: 800, y: 350 / 2 }],
         ball_position: { x: 800 / 2, y: 350 / 2 },
         ball_velocity: { x: 0, y: 0 },
-        score: { p1: 0, p2: 0 },
+        score: [0, 0],
     };
 
     private gameLoop: NodeJS.Timeout | null = null;
     private websocket: WebSocket | null = null;
-    public isRunning: boolean = false; // Deprecated, use isActive
+    // public isRunning: boolean = false; // Deprecated, use isActive
     public isActive: boolean = false;
+
+    // Optimization: Fixed Time Step Loop
+    private lastFrameTime: number = 0;
+    private accumulator: number = 0;
+    private readonly TARGET_FPS = 75;
+    private readonly TIME_STEP = 1000 / this.TARGET_FPS; // ~13.33ms
+    
+    // Optimization: Network Broadcast Rate Limiting
+    private timeSinceLastBroadcast: number = 0;
+    private readonly NETWORK_FPS = 30; // Send updates 30 times per second
+    private readonly NETWORK_TICK = 1000 / this.NETWORK_FPS; // ~33.33ms
 
     constructor(private app: FastifyApp, public gameId: string) {
         console.log(`Game ${this.gameId} created`);
@@ -64,36 +75,66 @@ export default class Game {
     private startGameLoop() {
         if (this.gameLoop) return;
 
+        // Reset positions
         this.players[0].position = { x: 0, y: 350 / 2 };
         this.players[1].position = { x: 800, y: 350 / 2 };
+        
+        // Initialize timing variables
+        this.lastFrameTime = performance.now();
+        this.accumulator = 0;
+        this.timeSinceLastBroadcast = 0;
+
+        // Use setInterval as the driver, but the logic inside handles the precision
+        // Running slightly faster than TARGET_FPS ensures we don't fall behind
         this.gameLoop = setInterval(() => {
-            // Update players
-            for (const player of this.players) {
-                player.update();
-            }
+            this.tick();
+        }, 1000 / this.TARGET_FPS); 
+    }
 
-            // Update ball
-            const scorer = this.ball.update();
-            if (scorer !== 0) {
-                if (scorer === 1) this.state.score.p1++;
-                else if (scorer === 2) this.state.score.p2++;
+    private tick() {
+        const now = performance.now();
+        const deltaTime = now - this.lastFrameTime;
+        this.lastFrameTime = now;
 
-                if (this.state.score.p1 >= 5 || this.state.score.p2 >= 5) {
-                    this.stop();
-                    this.broadcast({ type: 'game_over', winnerId: this.state.score.p1 >= 5 ? 1 : 2 });
-                    return;
-                } else {
-                    this.ball.resetBall();
-                }
-            }
+        this.accumulator += deltaTime;
 
-            // Check paddle collisions
-            this.ball.checkPaddleCollision(this.players[0].position.x, this.players[0].position.y);
-            this.ball.checkPaddleCollision(this.players[1].position.x - 10, this.players[1].position.y);
+        if (this.accumulator > 200) {
+            this.accumulator = 200;
+        }
 
-            // Update and broadcast game state
+        while (this.accumulator >= this.TIME_STEP) {
+            this.updatePhysics();
+            this.accumulator -= this.TIME_STEP;
+        }
+
+        this.timeSinceLastBroadcast += deltaTime;
+        if (this.timeSinceLastBroadcast >= this.NETWORK_TICK) {
             this.updateGameState();
-        }, 16); // 60 FPS
+            this.timeSinceLastBroadcast = 0;
+        }
+    }
+
+    private updatePhysics() {
+        for (const player of this.players) {
+            player.update();
+        }
+
+        const scorer = this.ball.update();
+        if (scorer !== 0) {
+            if (scorer === 1) this.state.score[0]++;
+            else if (scorer === 2) this.state.score[1]++;
+
+            if (this.state.score[0] >= 5 || this.state.score[1] >= 5) {
+                this.stop();
+                this.broadcast({ type: 'game_over', winnerId: this.state.score[0] >= 5 ? 1 : 2 });
+                return;
+            } else {
+                this.ball.resetBall();
+            }
+        }
+
+        this.ball.checkPaddleCollision(this.players[0].position.x, this.players[0].position.y);
+        this.ball.checkPaddleCollision(this.players[1].position.x - 10, this.players[1].position.y);
     }
 
     private stopGameLoop() {
@@ -105,13 +146,15 @@ export default class Game {
 
     public broadcast(message: any) {
         if (!this.websocket) return;
-        this.websocket.send(JSON.stringify(message));
+        if (this.websocket.readyState === 1) {
+            this.websocket.send(JSON.stringify(message));
+        }
     }
 
     private updateGameState() {
         
-        this.state.player1_position = this.players[0] ? this.players[0].getPosition() : { x: 0, y: 350 / 2 };
-        this.state.player2_position = this.players[1] ? this.players[1].getPosition() : { x: 800, y: 350 / 2 };
+        this.state.players_position[0] = this.players[0] ? this.players[0].getPosition() : { x: 0, y: 350 / 2 };
+        this.state.players_position[1] = this.players[1] ? this.players[1].getPosition() : { x: 800, y: 350 / 2 };
         this.state.ball_position = this.ball.getPosition();
         this.state.ball_velocity = this.ball.getVelocity();
         
@@ -135,7 +178,7 @@ export default class Game {
     public start() {
         if (!this.isActive) {
             this.isActive = true;
-            this.state.score = { p1: 0, p2: 0 }; // Reset score
+            this.state.score = [0, 0];
             this.ball.resetBall();
             this.startGameLoop();
             console.log('Game started');
