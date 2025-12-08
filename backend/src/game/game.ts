@@ -24,13 +24,12 @@ export default class Game {
         score: { p1: 0, p2: 0 },
     };
 
-    public gameId: string = Math.random().toString(36).substring(2, 10);
     private gameLoop: NodeJS.Timeout | null = null;
     private websocket: WebSocket | null = null;
     public isRunning: boolean = false; // Deprecated, use isActive
     public isActive: boolean = false;
 
-    constructor(private app: FastifyApp) {
+    constructor(private app: FastifyApp, public gameId: string) {
         console.log(`Game ${this.gameId} created`);
     }
 

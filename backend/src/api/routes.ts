@@ -32,3 +32,31 @@ export class ApiRoutes {
         }));
     }
 }
+
+export class WebsocketRoutes {
+    public static async registerAll(app: FastifyApp) {
+        app.instance.log.info('Registering Websocket routes...');
+        const routesPath = path.join(__dirname, 'websockets');
+        const routeFiles = fs.readdirSync(routesPath);
+
+        await Promise.all(routeFiles.map(async file => {
+            const fullPath = path.join(routesPath, file);
+            const stat = fs.statSync(fullPath);
+
+            if (stat.isDirectory()) {
+                const subFiles = fs.readdirSync(fullPath);
+                await Promise.all(subFiles.map(async subFile => {
+                    const subFullPath = path.join(fullPath, subFile);
+                    if (fs.statSync(subFullPath).isFile() && subFile.endsWith('.ts')) {
+                        const { default: RouteClass } = await import(subFullPath)
+                        new RouteClass(app);
+                    }
+                }));
+            } else if (stat.isFile() && file.endsWith('.ts')) {
+                const { default: RouteClass } = await import(fullPath)
+                new RouteClass(app);
+            }
+        }));
+    }
+}
+
