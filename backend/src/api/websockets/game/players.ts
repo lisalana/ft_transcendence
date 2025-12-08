@@ -1,5 +1,4 @@
 import { FastifyApp } from "../../../fastify";
-import Game from "../../../game/game";
 import WebsocketRoute from "../../websocket";
 
 export default class GamePlayerWebsocketRoute extends WebsocketRoute {
@@ -21,12 +20,10 @@ export default class GamePlayerWebsocketRoute extends WebsocketRoute {
                 console.log(`Client connected to game ${gameId}`);
                 connection.send(`Connected to the game ${gameId} WebSocket server!`);
 
-                // Send initial player status
-                if (game.players[0]?.controller) {
-                    connection.send(JSON.stringify({ type: 'player_connection', playerId: 1, connected: true }));
-                }
-                if (game.players[1]?.controller) {
-                    connection.send(JSON.stringify({ type: 'player_connection', playerId: 2, connected: true }));
+                for (let i = 0; i < game.players.length; i++) {
+                    if (game.players[i]?.controller) {
+                        connection.send(JSON.stringify({ type: 'player_connection', playerId: i + 1, connected: true }));
+                    }
                 }
 
                 connection.on('message', (message: any) => {
@@ -40,7 +37,7 @@ export default class GamePlayerWebsocketRoute extends WebsocketRoute {
                             return;
                         }
                     } catch (e) {
-                        // Not JSON, ignore or treat as text
+
                     }
 
                     console.log(`Game ${gameId} received:`, text);

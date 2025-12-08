@@ -11,6 +11,8 @@ export default class Ball {
     private readonly PADDLE_HEIGHT = 50;
     private readonly MAX_VELOCITY_Y = 5;
 
+    public lastTouchedBy: number | null = null;
+
     constructor() {
         this.resetBall();
     }
@@ -20,7 +22,8 @@ export default class Ball {
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
 
-        // Top and bottom wall collision
+        // Top and bottom wall collision (Standard 400px height logic)
+        // Note: 3/4 player modes use custom logic in their Game class, so this is safe for 2-player default.
         if (this.position.y - this.BALL_RADIUS <= 0 || this.position.y + this.BALL_RADIUS >= this.CANVAS_HEIGHT) {
             this.velocity.y = -this.velocity.y;
             this.position.y = Math.max(this.BALL_RADIUS, Math.min(this.CANVAS_HEIGHT - this.BALL_RADIUS, this.position.y));
@@ -28,15 +31,27 @@ export default class Ball {
 
         // Check for scoring
         if (this.position.x < 0) {
-            return 2; // Player 2 scored
+            // If nobody touched it yet, bounce instead of score
+            if (this.lastTouchedBy === null) {
+                this.velocity.x = -this.velocity.x;
+                this.position.x = this.BALL_RADIUS;
+                return 0;
+            }
+            return 2; // Player 2 scored (Ball went Left)
         } else if (this.position.x > this.CANVAS_WIDTH) {
-            return 1; // Player 1 scored
+            // If nobody touched it yet, bounce instead of score
+            if (this.lastTouchedBy === null) {
+                this.velocity.x = -this.velocity.x;
+                this.position.x = this.CANVAS_WIDTH - this.BALL_RADIUS;
+                return 0;
+            }
+            return 1; // Player 1 scored (Ball went Right)
         }
         
         return 0;
     }
 
-    public checkPaddleCollision(paddleX: number, paddleY: number): boolean {
+    public checkPaddleCollision(paddleX: number, paddleY: number, playerId: number = 0): boolean {
         // Check if ball collides with paddle
         const ballLeft = this.position.x - this.BALL_RADIUS;
         const ballRight = this.position.x + this.BALL_RADIUS;
@@ -52,6 +67,8 @@ export default class Ball {
         if (ballLeft <= paddleRight && ballRight >= paddleLeft &&
             ballTop <= paddleBottom && ballBottom >= paddleTop) {
             
+            this.lastTouchedBy = playerId;
+
             // Bounce ball away from paddle
             this.velocity.x = -this.velocity.x * 1.05; // Slightly increase speed
             
@@ -77,6 +94,7 @@ export default class Ball {
     }
 
     public resetBall() {
+        this.lastTouchedBy = null;
         this.position = { x: this.CANVAS_WIDTH / 2, y: this.CANVAS_HEIGHT / 2 };
         this.velocity = { 
             x: (Math.random() > 0.5 ? 1 : -1) * 5,

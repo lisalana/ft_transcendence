@@ -1,5 +1,4 @@
 import { FastifyApp } from "../../../fastify";
-import Game from "../../../game/game";
 import ApiRoute from "../../api";
 
 export default class JoinGameRoute extends ApiRoute {

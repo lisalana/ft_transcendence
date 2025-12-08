@@ -212,7 +212,11 @@
         <!-- Initial Screen -->
         <div id="startScreen">
             <p style="margin-bottom: 30px; font-size: 1.1rem; color: #ddd;">Host a game on your screen and use your phones as controllers.</p>
-            <button id="createGameBtn" class="btn">Create New Game</button>
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <button onclick="createGame('2players')" class="btn">2 Players</button>
+                <button onclick="createGame('3players')" class="btn">3 Players</button>
+                <button onclick="createGame('4players')" class="btn">4 Players</button>
+            </div>
         </div>
 
         <!-- Lobby / Game Screen -->
@@ -229,21 +233,7 @@
 
             <!-- Lobby Info / Player Cards (Displayed in lobby and when paused) -->
             <div class="lobby-info" id="lobbyInfo">
-                <!-- Player 1 Card -->
-                <div class="player-card" id="p1Card">
-                    <h3>Player 1 (Left)</h3>
-                    <div class="status-badge" id="p1Status">Waiting for connection...</div>
-                    <div id="qr-p1" class="qr-placeholder"></div>
-                    <div class="controls-hint">Scan to join</div>
-                </div>
-
-                <!-- Player 2 Card -->
-                <div class="player-card" id="p2Card">
-                    <h3>Player 2 (Right)</h3>
-                    <div class="status-badge" id="p2Status">Waiting for connection...</div>
-                    <div id="qr-p2" class="qr-placeholder"></div>
-                    <div class="controls-hint">Scan to join</div>
-                </div>
+                <!-- Cards will be generated dynamically -->
             </div>
 
             <button id="startBtn" class="btn" disabled>Start Game</button>
@@ -253,7 +243,6 @@
     <script>
         const startScreen = document.getElementById('startScreen');
         const gameScreen = document.getElementById('gameScreen');
-        const createGameBtn = document.getElementById('createGameBtn');
         const startBtn = document.getElementById('startBtn');
         const lobbyInfo = document.getElementById('lobbyInfo');
         const canvasContainer = document.getElementById('canvasContainer');
@@ -261,15 +250,12 @@
         const ctx = canvas.getContext('2d');
         const pauseOverlay = document.getElementById('pauseOverlay');
 
-        const p1Card = document.getElementById('p1Card');
-        const p2Card = document.getElementById('p2Card');
-        const p1Status = document.getElementById('p1Status');
-        const p2Status = document.getElementById('p2Status');
-
         let gameId = null;
         let ws = null;
-        let playersConnected = { 1: false, 2: false };
+        let playersConnected = {};
         let gameState = null;
+        let currentMode = '2players'; // Default
+        let totalPlayers = 2;
 
         // Particle System
         let particles = [];
@@ -333,7 +319,7 @@
             ctx.font = 'bold 60px "Segoe UI", sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.shadowColor = winnerId === 1 ? '#667eea' : '#764ba2';
+            ctx.shadowColor = '#667eea';
             ctx.shadowBlur = 20;
             ctx.fillText(`PLAYER ${winnerId} WINS!`, canvas.width / 2, canvas.height / 2);
             ctx.restore();
@@ -341,16 +327,31 @@
             animationFrameId = requestAnimationFrame(renderGameOver);
         }
 
-        createGameBtn.addEventListener('click', createGame);
         startBtn.addEventListener('click', startGame);
 
-        async function createGame() {
+        async function createGame(mode) {
             try {
-                const res = await fetch('/api/game/create', { method: 'POST' });
+                const res = await fetch(`/api/game/create/${mode}`, { method: 'POST' });
                 const data = await res.json();
                 
                 if (data.status === 'ok') {
                     gameId = data.gameId;
+                    currentMode = mode;
+                    
+                    // Determine total players
+                    if (mode === '2players') totalPlayers = 2;
+                    else if (mode === '3players') totalPlayers = 3;
+                    else if (mode === '4players') totalPlayers = 4;
+
+                    // Resize canvas for 3/4 players
+                    if (totalPlayers > 2) {
+                        canvas.width = 800;
+                        canvas.height = 800;
+                    } else {
+                        canvas.width = 800;
+                        canvas.height = 400;
+                    }
+
                     initLobby();
                 }
             } catch (e) {
@@ -363,9 +364,36 @@
             startScreen.classList.add('hidden');
             gameScreen.classList.add('active');
             
-            // Generate QR Codes
-            generateQR('qr-p1', getControllerUrl(1));
-            generateQR('qr-p2', getControllerUrl(2));
+            lobbyInfo.innerHTML = ''; // Clear previous
+            playersConnected = {};
+
+            for (let i = 1; i <= totalPlayers; i++) {
+                playersConnected[i] = false;
+                
+                // Create Card
+                const card = document.createElement('div');
+                card.className = 'player-card';
+                card.id = `p${i}Card`;
+                
+                let title = `Player ${i}`;
+                if (i === 1) title += " (Left)";
+                else if (i === 2 && totalPlayers >= 2) title += " (Right)";
+                else if (i === 3) title += " (Top)";
+                else if (i === 4) title += " (Bottom)";
+
+                card.innerHTML = `
+                    <h3>${title}</h3>
+                    <div class="status-badge" id="p${i}Status">Waiting for connection...</div>
+                    <div id="qr-p${i}" class="qr-placeholder"></div>
+                    <div class="controls-hint">Scan to join</div>
+                `;
+                lobbyInfo.appendChild(card);
+
+                // Generate QR
+                setTimeout(() => {
+                    generateQR(`qr-p${i}`, getControllerUrl(i));
+                }, 0);
+            }
 
             // Connect WebSocket
             connectWebSocket();
@@ -379,6 +407,7 @@
 
         function generateQR(elementId, text) {
             const el = document.getElementById(elementId);
+            if (!el) return;
             el.innerHTML = '';
             new QRCode(el, {
                 text: text,
@@ -389,7 +418,6 @@
                 correctLevel: QRCode.CorrectLevel.H
             });
             
-            // Make QR clickable for testing on same device
             el.style.cursor = 'pointer';
             el.onclick = () => window.open(text, '_blank', 'width=400,height=600');
         }
@@ -468,19 +496,29 @@
         function updatePlayerStatus(playerId, connected) {
             playersConnected[playerId] = connected;
             
-            const card = playerId === 1 ? p1Card : p2Card;
-            const status = playerId === 1 ? p1Status : p2Status;
+            const card = document.getElementById(`p${playerId}Card`);
+            const status = document.getElementById(`p${playerId}Status`);
 
-            if (connected) {
-                card.classList.add('connected');
-                status.textContent = 'Ready!';
-            } else {
-                card.classList.remove('connected');
-                status.textContent = 'Waiting...';
+            if (card && status) {
+                if (connected) {
+                    card.classList.add('connected');
+                    status.textContent = 'Ready!';
+                } else {
+                    card.classList.remove('connected');
+                    status.textContent = 'Waiting...';
+                }
             }
 
             // Enable start button if both are connected
-            if (playersConnected[1] && playersConnected[2]) {
+            let allConnected = true;
+            for (let i = 1; i <= totalPlayers; i++) {
+                if (!playersConnected[i]) {
+                    allConnected = false;
+                    break;
+                }
+            }
+
+            if (allConnected) {
                 startBtn.disabled = false;
                 startBtn.textContent = "START GAME";
             } else {
@@ -511,14 +549,30 @@
             ctx.stroke();
 
             // Paddles
+            // P1 (Left)
             ctx.fillStyle = '#667eea';
             if (gameState.players_position && gameState.players_position[0]) {
-                ctx.fillRect(gameState.players_position[0].x, gameState.players_position[0].y, 10, 50); // Player 1
+                ctx.fillRect(gameState.players_position[0].x, gameState.players_position[0].y, 10, 50); 
             }
             
+            // P2 (Right)
             ctx.fillStyle = '#764ba2';
             if (gameState.players_position && gameState.players_position[1]) {
-                ctx.fillRect(gameState.players_position[1].x - 10, gameState.players_position[1].y, 10, 50); // Player 2
+                ctx.fillRect(gameState.players_position[1].x - 10, gameState.players_position[1].y, 10, 50); 
+            }
+
+            // P3 (Top) - Horizontal
+            ctx.fillStyle = '#4caf50';
+            if (gameState.players_position && gameState.players_position[2]) {
+                // Assuming x/y is top-left. Horizontal paddle 50x10
+                ctx.fillRect(gameState.players_position[2].x, gameState.players_position[2].y, 50, 10); 
+            }
+
+            // P4 (Bottom) - Horizontal
+            ctx.fillStyle = '#ff9800';
+            if (gameState.players_position && gameState.players_position[3]) {
+                // Assuming x/y is top-left. Horizontal paddle 50x10
+                ctx.fillRect(gameState.players_position[3].x, gameState.players_position[3].y - 10, 50, 10); 
             }
 
             // Ball
@@ -536,10 +590,40 @@
             // Scores
             if (gameState.score) {
                 ctx.font = "bold 48px sans-serif";
-                ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
                 ctx.textAlign = "center";
-                ctx.fillText(gameState.score[0], canvas.width / 4, 60);
-                ctx.fillText(gameState.score[1], (canvas.width / 4) * 3, 60);
+                
+                // 2 Players: Standard Left/Right
+                if (gameState.score.length === 2) {
+                    ctx.fillStyle = "rgba(102, 126, 234, 0.5)"; // P1 Blue
+                    ctx.fillText(gameState.score[0], canvas.width / 4, 60);
+                    
+                    ctx.fillStyle = "rgba(118, 75, 162, 0.5)"; // P2 Purple
+                    ctx.fillText(gameState.score[1], (canvas.width / 4) * 3, 60);
+                } 
+                // 3 or 4 Players: Corners/Edges
+                else {
+                    ctx.font = "bold 32px sans-serif";
+
+                    // P1 (Left - Blue)
+                    ctx.fillStyle = "rgba(102, 126, 234, 0.7)"; 
+                    ctx.fillText(gameState.score[0], 40, canvas.height / 2);
+
+                    // P2 (Right - Purple)
+                    ctx.fillStyle = "rgba(118, 75, 162, 0.7)"; 
+                    ctx.fillText(gameState.score[1], canvas.width - 40, canvas.height / 2);
+
+                    // P3 (Top - Green)
+                    if (gameState.score.length >= 3) {
+                        ctx.fillStyle = "rgba(76, 175, 80, 0.7)"; 
+                        ctx.fillText(gameState.score[2], canvas.width / 2, 40);
+                    }
+
+                    // P4 (Bottom - Orange)
+                    if (gameState.score.length >= 4) {
+                        ctx.fillStyle = "rgba(255, 152, 0, 0.7)"; 
+                        ctx.fillText(gameState.score[3], canvas.width / 2, canvas.height - 20);
+                    }
+                }
             }
         }
     </script>

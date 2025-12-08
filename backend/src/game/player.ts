@@ -18,15 +18,31 @@ export default class Player {
         this.direction = direction;
     }
 
-    public update() {
+    public update(maxYOverride?: number) {
         const speed = 5;
-        const minY = 0;
-        const maxY = 350;
+        
+        // P1 & P2 (Vertical)
+        if (this.id === 1 || this.id === 2) {
+            const minY = 0;
+            const maxY = maxYOverride !== undefined ? maxYOverride : 350; // Default 350 for 400px height
+            
+            if (this.direction === 'up') {
+                this.position.y = Math.max(minY, this.position.y - speed);
+            } else if (this.direction === 'down') {
+                this.position.y = Math.min(maxY, this.position.y + speed);
+            }
+        } 
+        // P3 & P4 (Horizontal)
+        else if (this.id === 3 || this.id === 4) {
+            const minX = 0;
+            const maxX = 750; // 800 - 50 (paddle width, assuming horizontal paddle is 50w x 10h)
 
-        if (this.direction === 'up') {
-            this.position.y = Math.max(minY, this.position.y - speed);
-        } else if (this.direction === 'down') {
-            this.position.y = Math.min(maxY, this.position.y + speed);
+            // Map 'up' to Left (negative X) and 'down' to Right (positive X)
+            if (this.direction === 'up') { // Left
+                this.position.x = Math.max(minX, this.position.x - speed);
+            } else if (this.direction === 'down') { // Right
+                this.position.x = Math.min(maxX, this.position.x + speed);
+            }
         }
     }
 }
