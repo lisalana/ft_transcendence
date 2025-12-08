@@ -293,18 +293,16 @@ export class ThreePlayersGame extends Game {
         if (missedPlayerId !== -1) {
             // Only score if someone touched the ball
             if (this.ball.lastTouchedBy !== null) {
-                // Increment score for everyone ELSE
-                for (let i = 0; i < 3; i++) {
-                    if (i + 1 !== missedPlayerId) {
-                        this.state.score[i]++;
-                    }
+                // Score goes to the last player who touched the ball
+                const scorerIndex = this.ball.lastTouchedBy - 1;
+                if (scorerIndex >= 0 && scorerIndex < 3) {
+                    this.state.score[scorerIndex]++;
                 }
                 
                 // Check Win Condition
                 const maxScore = Math.max(...this.state.score);
                 if (maxScore >= 5) {
                      // Winner is the one with max score
-                     // If tie, first one found wins (simple logic)
                      const winnerIndex = this.state.score.indexOf(maxScore);
                      this.stop();
                      this.broadcast({ type: 'game_over', winnerId: winnerIndex + 1 });
@@ -358,7 +356,7 @@ export class FourPlayersGame extends Game {
         this.players[0].position = { x: 0, y: 800 / 2 - 25 }; // Left
         this.players[1].position = { x: 800, y: 800 / 2 - 25 }; // Right
         this.players[2].position = { x: 800 / 2 - 25, y: 0 }; // Top
-        this.players[3].position = { x: 800 / 2 - 25, y: 790 }; // Bottom (800 - 10)
+        this.players[3].position = { x: 800 / 2 - 25, y: 800 }; // Bottom
         
         this.ball.position = { x: 400, y: 400 };
     }
@@ -410,11 +408,10 @@ export class FourPlayersGame extends Game {
         if (missedPlayerId !== -1) {
             // Only score if someone touched the ball
             if (this.ball.lastTouchedBy !== null) {
-                // Increment score for everyone ELSE
-                for (let i = 0; i < 4; i++) {
-                    if (i + 1 !== missedPlayerId) {
-                        this.state.score[i]++;
-                    }
+                // Score goes to the last player who touched the ball
+                const scorerIndex = this.ball.lastTouchedBy - 1;
+                if (scorerIndex >= 0 && scorerIndex < 4) {
+                    this.state.score[scorerIndex]++;
                 }
                 
                 // Check Win Condition
