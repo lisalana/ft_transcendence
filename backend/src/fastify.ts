@@ -34,9 +34,9 @@ export class FastifyApp {
             origin: true
         });
         await this.instance.register(websocketPlugin);
-        await this.instance.register(staticPlugin, {
-            root: path.join(__dirname, '../static')
-        });
+        // await this.instance.register(staticPlugin, {
+        //     root: path.join(__dirname, '../static')
+        // });
         
         await ApiRoutes.registerAll(this);
         await WebsocketRoutes.registerAll(this);
