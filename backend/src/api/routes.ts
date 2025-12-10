@@ -60,3 +60,16 @@ export class WebsocketRoutes {
     }
 }
 
+export default class ListUsersRoute extends ApiRoute {
+  constructor(app: FastifyApp) {
+    super(app, '/api/users', 'GET', async (request, reply) => {
+      const userModel = new UserModel();
+      const users = userModel.findAll();
+      
+      const sanitizedUsers = users.map(({ password_hash, ...user }) => user);
+      
+      return { success: true, users: sanitizedUsers };
+    });
+  }
+}
+
