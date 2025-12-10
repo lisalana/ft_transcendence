@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3';
-import { DatabaseManager } from '../../../../database/database';
+import { DatabaseManager } from '../database';
 
 export interface User {
     id? : number; //string pour hash id  ? 

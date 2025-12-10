@@ -1,6 +1,6 @@
 import { FastifyApp } from "../../../fastify";
 import ApiRoute from "../../api";
-import { UserModel } from "../database/models/user_model";
+import { UserModel } from "../../../database/models/user_model";
 
 export default class GetUserRoute extends ApiRoute {
   constructor(app: FastifyApp) {

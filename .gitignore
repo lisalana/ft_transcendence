@@ -28,3 +28,8 @@ Thumbs.db
 
 # Docker
 *.pid
+
+# SQLite database files
+backend/data/transcendence.db
+backend/data/transcendence.db-shm
+backend/data/transcendence.db-wal
