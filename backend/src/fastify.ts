@@ -7,6 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import {Game} from './game/game';
 import GamesManager from './game/games.manager';
+import { DatabaseManager } from './database/database';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,6 +31,8 @@ export class FastifyApp {
 
     async initialize()
     {
+        DatabaseManager.getInstance();
+
         await this.instance.register(cors, {
             origin: true
         });

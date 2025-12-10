@@ -52,7 +52,7 @@ export class UserModel {
         return statement.get(id) as User | undefined;
     }
 
-    findbyUsername(username: string): User | undefined {
+    findByUsername(username: string): User | undefined {
         const statement = this.db.prepare(`SELECT * FROM users WHERE username = ?`);
         return statement.get(username) as User | undefined;
     }
