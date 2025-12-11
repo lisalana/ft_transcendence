@@ -54,6 +54,16 @@ export default class GameControllerWebsocketRoute extends WebsocketRoute {
                     game.notifyPlayerConnection(playerId, false);
                 }
             });
+        }, {
+            description: 'WebSocket endpoint for player controller input',
+            tags: ['websocket'],
+            params: {
+                type: 'object',
+                properties: {
+                    gameId: { type: 'string', description: 'The game ID' },
+                    playerId: { type: 'string', description: 'The player ID (1-based)' }
+                }
+            }
         });
     }
 }

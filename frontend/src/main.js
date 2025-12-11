@@ -88,7 +88,7 @@ startBtn.addEventListener('click', startGame);
 
 async function createGame(mode) {
     try {
-        const res = await fetch(`http://localhost:4000/api/game/create/${mode}`, { method: 'POST' });
+        const res = await fetch(`http://${window.location.hostname}:4000/api/game/create/${mode}`, { method: 'POST' });
         const data = await res.json();
 
         if (data.status === 'ok') {

@@ -7,6 +7,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import {Game} from './game/game';
 import GamesManager from './game/games.manager';
+import Swagger from '@fastify/swagger';
+import SwaggerUI from '@fastify/swagger-ui';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,6 +35,9 @@ export class FastifyApp {
         await this.instance.register(cors, {
             origin: true
         });
+        await this.instance.register(Swagger);
+        await this.instance.register(SwaggerUI);
+
         await this.instance.register(websocketPlugin);
         // await this.instance.register(staticPlugin, {
         //     root: path.join(__dirname, '../static')
@@ -40,6 +45,9 @@ export class FastifyApp {
         
         await ApiRoutes.registerAll(this);
         await WebsocketRoutes.registerAll(this);
+
+        await this.instance.ready()
+        this.instance.swagger()
     }
 
     async listen()

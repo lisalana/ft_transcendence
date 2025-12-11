@@ -49,6 +49,15 @@ export default class GamePlayerWebsocketRoute extends WebsocketRoute {
                     console.log(`Client disconnected from game ${gameId}`);
                     app.games_manager.deleteGame(gameId)
                 });
+        }, {
+            description: 'WebSocket endpoint for game state updates',
+            tags: ['websocket'],
+            params: {
+                type: 'object',
+                properties: {
+                    gameId: { type: 'string', description: 'The game ID' }
+                }
+            }
         });
     }
 }
