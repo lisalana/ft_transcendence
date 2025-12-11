@@ -7,6 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import {Game} from './game/game';
 import GamesManager from './game/games.manager';
+import { DatabaseManager } from './database/database';
 import Swagger from '@fastify/swagger';
 import SwaggerUI from '@fastify/swagger-ui';
 
@@ -23,7 +24,7 @@ export class FastifyApp {
     public games_manager: GamesManager = new GamesManager();
 
     public instance =  Fastify({ 
-      logger: false 
+      logger: true 
     });
 
     constructor ()
@@ -32,6 +33,8 @@ export class FastifyApp {
 
     async initialize()
     {
+        DatabaseManager.getInstance();
+
         await this.instance.register(cors, {
             origin: true
         });

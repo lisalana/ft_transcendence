@@ -40,7 +40,7 @@ export default class WebsocketRoute
                 }
             },
             handler: async (request, reply) => {
-                return reply.status(400).send({ 
+                return reply.status(400 as 101).send({ 
                     error: 'This is a WebSocket endpoint documentation. Connect via WebSocket to: ' + path 
                 });
             },
