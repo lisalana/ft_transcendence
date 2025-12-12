@@ -5,10 +5,10 @@ export interface User {
     id? : number; //string pour hash id  ? 
     username: string;
     email: string;
-    password_hash: string;
     avatar_url?: string;
     created_at?: string;
     updated_at?: string;
+    access_token: string;
 }
 
 export interface UserStats {
@@ -28,14 +28,14 @@ export class UserModel {
 
     create(user: User): User {
         const statement = this.db.prepare(`
-            INSERT INTO users (username, email, password_hash, avatar_url)
+            INSERT INTO users (username, email, access_token, avatar_url)
             VALUES (?, ?, ?, ?)
             `);
 
     const result = statement.run(
         user.username,
         user.email,
-        user.password_hash,
+        user.access_token,
         user.avatar_url || null,
     );
 
@@ -55,6 +55,11 @@ export class UserModel {
     findByUsername(username: string): User | undefined {
         const statement = this.db.prepare(`SELECT * FROM users WHERE username = ?`);
         return statement.get(username) as User | undefined;
+    }
+
+    findByEmail(email: string): User | undefined {
+        const statement = this.db.prepare(`SELECT * FROM users WHERE email = ?`);
+        return statement.get(email) as User | undefined;
     }
 
     findAll(): User[] {

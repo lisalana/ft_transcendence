@@ -10,6 +10,7 @@ import GamesManager from './game/games.manager';
 import { DatabaseManager } from './database/database';
 import Swagger from '@fastify/swagger';
 import SwaggerUI from '@fastify/swagger-ui';
+import cookie from '@fastify/cookie';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,10 +35,15 @@ export class FastifyApp {
     async initialize()
     {
         DatabaseManager.getInstance();
-
+        
         await this.instance.register(cors, {
             origin: true
         });
+        this.instance.register(cookie, {
+            secret: process.env.COOKIE_SECRET,
+            hook: 'onRequest',
+            parseOptions: {} 
+        })
         await this.instance.register(Swagger);
         await this.instance.register(SwaggerUI);
 

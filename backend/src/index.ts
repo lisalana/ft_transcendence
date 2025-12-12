@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { FastifyApp } from './fastify';
 
 const start = async () => {
