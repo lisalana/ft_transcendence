@@ -124,8 +124,9 @@
         }
 
         // WebSocket
+        console.log('Connecting to WS for game:', gameId, 'player:', playerId);
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.hostname}:4000/api/game/${gameId}/${playerId}/controller_socket`;
+        const wsUrl = `${protocol}//${window.location.host}/api/game/${gameId}/${playerId}/controller_socket`;
         let ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {

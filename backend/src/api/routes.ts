@@ -20,12 +20,12 @@ export class ApiRoutes {
                 const subFiles = fs.readdirSync(fullPath);
                 await Promise.all(subFiles.map(async subFile => {
                     const subFullPath = path.join(fullPath, subFile);
-                    if (fs.statSync(subFullPath).isFile() && subFile.endsWith('.ts')) {
+                    if (fs.statSync(subFullPath).isFile() && (subFile.endsWith('.ts') || subFile.endsWith('.js'))) {
                         const { default: RouteClass } = await import(subFullPath)
                         new RouteClass(app);
                     }
                 }));
-            } else if (stat.isFile() && file.endsWith('.ts')) {
+            } else if (stat.isFile() && (file.endsWith('.ts') || file.endsWith('.js'))) {
                 const { default: RouteClass } = await import(fullPath)
                 new RouteClass(app);
             }
@@ -47,12 +47,12 @@ export class WebsocketRoutes {
                 const subFiles = fs.readdirSync(fullPath);
                 await Promise.all(subFiles.map(async subFile => {
                     const subFullPath = path.join(fullPath, subFile);
-                    if (fs.statSync(subFullPath).isFile() && subFile.endsWith('.ts')) {
+                    if (fs.statSync(subFullPath).isFile() && (subFile.endsWith('.ts') || subFile.endsWith('.js'))) {
                         const { default: RouteClass } = await import(subFullPath)
                         new RouteClass(app);
                     }
                 }));
-            } else if (stat.isFile() && file.endsWith('.ts')) {
+            } else if (stat.isFile() && (file.endsWith('.ts') || file.endsWith('.js'))) {
                 const { default: RouteClass } = await import(fullPath)
                 new RouteClass(app);
             }

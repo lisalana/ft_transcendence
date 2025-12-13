@@ -88,7 +88,7 @@ startBtn.addEventListener('click', startGame);
 
 async function createGame(mode) {
     try {
-        const res = await fetch(`http://${window.location.hostname}:4000/api/game/create/${mode}`, { method: 'POST' });
+        const res = await fetch(`${window.location.protocol}//${window.location.host}/api/game/create/${mode}`, { method: 'POST' });
         const data = await res.json();
 
         if (data.status === 'ok') {
@@ -181,7 +181,8 @@ function generateQR(elementId, text) {
 
 function connectWebSocket() {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//localhost:4000/api/game/${gameId}/websocket`;
+    const wsUrl = `${protocol}//${window.location.host}/api/game/${gameId}/websocket`;
+    // alert(wsUrl);
 
     ws = new WebSocket(wsUrl);
 
