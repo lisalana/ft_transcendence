@@ -7,9 +7,11 @@ export class ThreePlayersGame extends Game {
     constructor(app: FastifyApp, gameId: string, settings?: GameSettings) {
         super(app, gameId, settings);  // ← PASSER settings au parent
         
-        this.players = [new Player(1, null), new Player(2, null), new Player(3, null)];
-        this.state.players_position = [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }];
-        this.state.score = [0, 0, 0];
+    this.players = [
+        new Player(1, null, this.settings.paddleSize), 
+        new Player(2, null, this.settings.paddleSize), 
+        new Player(3, null, this.settings.paddleSize)
+    ];
     }
 
     protected initializeGame() {
@@ -33,7 +35,7 @@ export class ThreePlayersGame extends Game {
             // Pass 750 as maxY override for P1/P2 on 800h map
             player.update(750);
         }
-
+        
         // Custom Ball Update for Square Map
         
         const ball = this.ball;

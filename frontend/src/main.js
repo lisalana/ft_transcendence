@@ -1,6 +1,6 @@
 // Variables globales (initialisées plus tard)
 let startScreen, gameScreen, startBtn, lobbyInfo, canvasContainer, canvas, ctx, pauseOverlay;
-let settingsScreen, createGameBtn;
+let settingsScreen, createGameBtn, pauseMenu;
 
 let gameId = null;
 let ws = null;
@@ -8,10 +8,12 @@ let playersConnected = {};
 let gameState = null;
 let currentMode = '2players';
 let totalPlayers = 2;
+let currentPaddleSize = 50; // Stocker la taille actuelle du paddle
+let isPaused = false;
 
 // Game Settings
 let gameSettings = {
-    paddleSize: 50,
+    paddleSize: 80,  // ← Nouvelle valeur par défaut
     ballSpeed: 3,
     winScore: 11
 };
@@ -95,6 +97,7 @@ function initGameElements() {
     pauseOverlay = document.getElementById('pauseOverlay');
     settingsScreen = document.getElementById('settingsScreen');
     createGameBtn = document.getElementById('createGameBtn');
+    pauseMenu = document.getElementById('pauseMenu');
 
     if (canvas) {
         ctx = canvas.getContext('2d');
@@ -108,6 +111,152 @@ function initGameElements() {
     if (createGameBtn) {
         createGameBtn.addEventListener('click', () => createGame(currentMode));
     }
+
+    // ESC pour pause
+    document.addEventListener('keydown', handleEscapeKey);
+}
+
+// Gérer la touche ESC
+function handleEscapeKey(e) {
+    if (e.key === 'Escape' && canvasContainer && !canvasContainer.classList.contains('hidden')) {
+        togglePause();
+    }
+}
+
+// Toggle pause
+function togglePause() {
+    isPaused = !isPaused;
+    if (pauseMenu) {
+        if (isPaused) {
+            pauseMenu.classList.remove('hidden');
+        } else {
+            pauseMenu.classList.add('hidden');
+            closePauseSettings(); // Fermer les settings si ouverts
+        }
+    }
+}
+
+// Show pause settings
+function showPauseSettings() {
+    const pauseSettingsOverlay = document.getElementById('pauseSettingsOverlay');
+    if (pauseSettingsOverlay) {
+        // Initialiser les sliders avec les valeurs actuelles
+        const pausePaddleSize = document.getElementById('pausePaddleSize');
+        const pauseBallSpeed = document.getElementById('pauseBallSpeed');
+        const pauseWinScore = document.getElementById('pauseWinScore');
+        
+        if (pausePaddleSize) pausePaddleSize.value = gameSettings.paddleSize;
+        if (pauseBallSpeed) pauseBallSpeed.value = gameSettings.ballSpeed;
+        if (pauseWinScore) pauseWinScore.value = gameSettings.winScore;
+        
+        // Mettre à jour les affichages
+        updatePauseSettingsDisplay();
+        
+        // Attacher les listeners
+        initPauseSettingsSliders();
+        
+        pauseSettingsOverlay.classList.remove('hidden');
+    }
+}
+
+// Close pause settings
+function closePauseSettings() {
+    const pauseSettingsOverlay = document.getElementById('pauseSettingsOverlay');
+    if (pauseSettingsOverlay) {
+        pauseSettingsOverlay.classList.add('hidden');
+    }
+}
+
+// Apply pause settings
+function applyPauseSettings() {
+    const pausePaddleSize = document.getElementById('pausePaddleSize');
+    const pauseBallSpeed = document.getElementById('pauseBallSpeed');
+    const pauseWinScore = document.getElementById('pauseWinScore');
+    
+    if (pausePaddleSize) gameSettings.paddleSize = parseInt(pausePaddleSize.value);
+    if (pauseBallSpeed) gameSettings.ballSpeed = parseInt(pauseBallSpeed.value);
+    if (pauseWinScore) gameSettings.winScore = parseInt(pauseWinScore.value);
+    
+    // Mettre à jour currentPaddleSize pour le frontend
+    currentPaddleSize = gameSettings.paddleSize;
+    
+    console.log('⚙️ Settings updated:', gameSettings);
+    
+    closePauseSettings();
+    
+    // Afficher une notification
+    showNotification('Settings will apply next round!');
+}
+
+// Show notification
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 15px 30px;
+        border-radius: 10px;
+        font-size: 1rem;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease;
+    `;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 2000);
+}
+
+// Initialize pause settings sliders
+function initPauseSettingsSliders() {
+    const pausePaddleSize = document.getElementById('pausePaddleSize');
+    const pauseBallSpeed = document.getElementById('pauseBallSpeed');
+    const pauseWinScore = document.getElementById('pauseWinScore');
+    
+    if (pausePaddleSize) {
+        pausePaddleSize.removeEventListener('input', updatePauseSettingsDisplay);
+        pausePaddleSize.addEventListener('input', updatePauseSettingsDisplay);
+    }
+    
+    if (pauseBallSpeed) {
+        pauseBallSpeed.removeEventListener('input', updatePauseSettingsDisplay);
+        pauseBallSpeed.addEventListener('input', updatePauseSettingsDisplay);
+    }
+    
+    if (pauseWinScore) {
+        pauseWinScore.removeEventListener('input', updatePauseSettingsDisplay);
+        pauseWinScore.addEventListener('input', updatePauseSettingsDisplay);
+    }
+}
+
+// Update pause settings display
+function updatePauseSettingsDisplay() {
+    const pausePaddleSizeValue = document.getElementById('pausePaddleSizeValue');
+    const pauseBallSpeedValue = document.getElementById('pauseBallSpeedValue');
+    const pauseWinScoreValue = document.getElementById('pauseWinScoreValue');
+    
+    const pausePaddleSize = document.getElementById('pausePaddleSize');
+    const pauseBallSpeed = document.getElementById('pauseBallSpeed');
+    const pauseWinScore = document.getElementById('pauseWinScore');
+    
+    if (pausePaddleSizeValue && pausePaddleSize) {
+        pausePaddleSizeValue.textContent = pausePaddleSize.value;
+    }
+    
+    if (pauseBallSpeedValue && pauseBallSpeed) {
+        const speedLabels = ['Very Slow', 'Slow', 'Normal', 'Fast', 'Very Fast'];
+        pauseBallSpeedValue.textContent = speedLabels[pauseBallSpeed.value - 1];
+    }
+    
+    if (pauseWinScoreValue && pauseWinScore) {
+        pauseWinScoreValue.textContent = pauseWinScore.value;
+    }
 }
 
 // Initialize settings sliders
@@ -120,22 +269,32 @@ function initSettingsSliders() {
     const ballSpeedValue = document.getElementById('ballSpeedValue');
     const winScoreValue = document.getElementById('winScoreValue');
 
-    if (paddleSizeSlider) {
+    if (paddleSizeSlider && paddleSizeValue) {
+        // Initialiser avec la valeur par défaut
+        paddleSizeValue.textContent = paddleSizeSlider.value;
+        
         paddleSizeSlider.addEventListener('input', (e) => {
             gameSettings.paddleSize = parseInt(e.target.value);
             paddleSizeValue.textContent = e.target.value;
         });
     }
 
-    if (ballSpeedSlider) {
+    if (ballSpeedSlider && ballSpeedValue) {
         const speedLabels = ['Very Slow', 'Slow', 'Normal', 'Fast', 'Very Fast'];
+        
+        // Initialiser avec la valeur par défaut
+        ballSpeedValue.textContent = speedLabels[ballSpeedSlider.value - 1];
+        
         ballSpeedSlider.addEventListener('input', (e) => {
             gameSettings.ballSpeed = parseInt(e.target.value);
             ballSpeedValue.textContent = speedLabels[e.target.value - 1];
         });
     }
 
-    if (winScoreSlider) {
+    if (winScoreSlider && winScoreValue) {
+        // Initialiser avec la valeur par défaut
+        winScoreValue.textContent = winScoreSlider.value;
+        
         winScoreSlider.addEventListener('input', (e) => {
             gameSettings.winScore = parseInt(e.target.value);
             winScoreValue.textContent = e.target.value;
@@ -162,7 +321,22 @@ function backToModeSelection() {
 }
 
 async function createGame(mode) {
+    // FERMER l'ancien WebSocket s'il existe
+    if (ws) {
+        console.log('🔌 Closing old WebSocket...');
+        ws.close();
+        ws = null;
+    }
+    
+    // Désactiver le bouton pour éviter les doubles clics
+    if (createGameBtn) {
+        createGameBtn.disabled = true;
+        createGameBtn.textContent = 'Creating...';
+    }
+    
     try {
+        console.log('📤 Sending game settings:', gameSettings);
+        
         const res = await fetch(`${window.location.protocol}//${window.location.host}/api/game/create/${mode}`, { 
             method: 'POST',
             headers: {
@@ -175,6 +349,8 @@ async function createGame(mode) {
         if (data.status === 'ok') {
             gameId = data.gameId;
             currentMode = mode;
+            
+            console.log('✅ New game created with ID:', gameId);
 
             if (totalPlayers > 2) {
                 canvas.width = 800;
@@ -190,6 +366,12 @@ async function createGame(mode) {
     } catch (e) {
         console.error('Failed to create game:', e);
         alert('Error creating game');
+        
+        // Réactiver le bouton en cas d'erreur
+        if (createGameBtn) {
+            createGameBtn.disabled = false;
+            createGameBtn.textContent = 'Create Game →';
+        }
     }
 }
 
@@ -277,6 +459,11 @@ function handleMessage(data) {
         startBtn.classList.add('hidden');
         canvasContainer.classList.remove('hidden');
         isGameOver = false;
+        isPaused = false;
+        // Initialiser paddleSize UNE SEULE FOIS
+        currentPaddleSize = gameSettings.paddleSize;
+        console.log('🏓 Game started! Paddle size:', currentPaddleSize);
+        console.log('   Game ID:', gameId);
     }
     else if (data.type === 'game_paused') {
         pauseOverlay.classList.remove('hidden');
@@ -287,8 +474,11 @@ function handleMessage(data) {
         lobbyInfo.classList.add('hidden');
     }
     else if (data.type === 'game_state_update') {
-        if (!isGameOver) {
+        if (!isGameOver && !isPaused) {
             gameState = data.state;
+            
+            // Ne plus afficher de warning - c'est normal si les settings ont été modifiés en pause
+            
             drawGame();
         }
     }
@@ -359,7 +549,7 @@ function startGame() {
 }
 
 function drawGame() {
-    if (!gameState) return;
+    if (!gameState || isPaused) return;
 
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -371,26 +561,31 @@ function drawGame() {
     ctx.lineTo(canvas.width / 2, canvas.height);
     ctx.stroke();
 
+    // P1 (Left) - Paddle vertical
     ctx.fillStyle = '#667eea';
     if (gameState.players_position && gameState.players_position[0]) {
-        ctx.fillRect(gameState.players_position[0].x, gameState.players_position[0].y, 10, 50);
+        ctx.fillRect(gameState.players_position[0].x, gameState.players_position[0].y, 10, currentPaddleSize);
     }
 
+    // P2 (Right) - Paddle vertical
     ctx.fillStyle = '#764ba2';
     if (gameState.players_position && gameState.players_position[1]) {
-        ctx.fillRect(gameState.players_position[1].x - 10, gameState.players_position[1].y, 10, 50);
+        ctx.fillRect(gameState.players_position[1].x - 10, gameState.players_position[1].y, 10, currentPaddleSize);
     }
 
+    // P3 (Top) - Paddle horizontal
     ctx.fillStyle = '#4caf50';
     if (gameState.players_position && gameState.players_position[2]) {
-        ctx.fillRect(gameState.players_position[2].x, gameState.players_position[2].y, 50, 10);
+        ctx.fillRect(gameState.players_position[2].x, gameState.players_position[2].y, currentPaddleSize, 10);
     }
 
+    // P4 (Bottom) - Paddle horizontal
     ctx.fillStyle = '#ff9800';
     if (gameState.players_position && gameState.players_position[3]) {
-        ctx.fillRect(gameState.players_position[3].x, gameState.players_position[3].y - 10, 50, 10);
+        ctx.fillRect(gameState.players_position[3].x, gameState.players_position[3].y - 10, currentPaddleSize, 10);
     }
 
+    // Ball
     ctx.fillStyle = '#fff';
     ctx.beginPath();
     ctx.arc(gameState.ball_position.x, gameState.ball_position.y, 6, 0, Math.PI * 2);
@@ -401,6 +596,7 @@ function drawGame() {
     ctx.fill();
     ctx.shadowBlur = 0;
 
+    // Scores
     if (gameState.score) {
         ctx.font = "bold 48px sans-serif";
         ctx.textAlign = "center";
@@ -432,4 +628,10 @@ function drawGame() {
             }
         }
     }
+    
+    // DEBUG: Afficher la taille du paddle
+    ctx.fillStyle = "yellow";
+    ctx.font = "20px sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText(`Paddle: ${currentPaddleSize}px`, 10, 30);
 }

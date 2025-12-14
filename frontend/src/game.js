@@ -9,7 +9,7 @@ const Game = {
                 
                 <div class="game-header">
                     <h2>Pong Master</h2>
-                    <p class="game-subtitle">Host a game on your screen and use your phones as controllers</p>
+                    <p class="game-subtitle"> Use your phones as controllers</p>
                 </div>
 
                 <!-- Start Screen - Mode Selection -->
@@ -42,8 +42,8 @@ const Game = {
                                     🏓 Paddle Size
                                 </label>
                                 <div class="slider-container">
-                                    <input type="range" id="paddleSize" min="30" max="100" value="50" step="10" class="slider">
-                                    <span class="slider-value" id="paddleSizeValue">50</span>
+                                    <input type="range" id="paddleSize" min="50" max="150" value="80" step="10" class="slider">
+                                    <span class="slider-value" id="paddleSizeValue">80</span>
                                 </div>
                                 <div class="setting-hint">Small / Medium / Large paddles</div>
                             </div>
@@ -86,7 +86,69 @@ const Game = {
                         <!-- Canvas (Hidden initially) -->
                         <div id="canvasContainer" class="canvas-container hidden">
                             <canvas id="gameCanvas" width="800" height="400"></canvas>
-                            <!-- Pause Overlay -->
+                            
+                            <!-- Pause Menu -->
+                            <div id="pauseMenu" class="pause-menu hidden">
+                                <div class="pause-content">
+                                    <h2 class="pause-title">⏸️ PAUSED</h2>
+                                    <p class="pause-hint">Press ESC to resume</p>
+                                    
+                                    <div class="pause-buttons">
+                                        <button class="pause-btn resume-btn" onclick="togglePause()">
+                                            ▶️ Resume Game
+                                        </button>
+                                        <button class="pause-btn settings-btn" onclick="showPauseSettings()">
+                                            ⚙️ Settings
+                                        </button>
+                                        <button class="pause-btn home-btn" onclick="Router.navigate('home')">
+                                            🏠 Back to Home
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Settings overlay in pause menu -->
+                                <div id="pauseSettingsOverlay" class="hidden" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; justify-content: center; align-items: center;">
+                                    <div style="max-width: 500px; width: 90%; padding: 30px; background: rgba(30, 30, 50, 0.9); border-radius: 20px; border: 2px solid rgba(102, 126, 234, 0.3);">
+                                        <h2 style="color: #667eea; margin-bottom: 20px; text-align: center;">⚙️ Game Settings</h2>
+                                        <p style="color: rgba(255,255,255,0.6); text-align: center; margin-bottom: 30px; font-size: 0.9rem;">Changes will apply to the next round</p>
+                                        
+                                        <div class="setting-item">
+                                            <label class="setting-label">🏓 Paddle Size</label>
+                                            <div class="slider-container">
+                                                <input type="range" id="pausePaddleSize" min="30" max="100" value="50" step="10" class="slider">
+                                                <span class="slider-value" id="pausePaddleSizeValue">50</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="setting-item">
+                                            <label class="setting-label">⚡ Ball Speed</label>
+                                            <div class="slider-container">
+                                                <input type="range" id="pauseBallSpeed" min="1" max="5" value="3" class="slider">
+                                                <span class="slider-value" id="pauseBallSpeedValue">Normal</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="setting-item">
+                                            <label class="setting-label">🎯 Points to Win</label>
+                                            <div class="slider-container">
+                                                <input type="range" id="pauseWinScore" min="3" max="21" value="11" class="slider">
+                                                <span class="slider-value" id="pauseWinScoreValue">11</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div style="display: flex; gap: 15px; margin-top: 30px;">
+                                            <button class="pause-btn" onclick="applyPauseSettings()" style="flex: 1; background: linear-gradient(135deg, #667eea, #764ba2);">
+                                                ✅ Apply
+                                            </button>
+                                            <button class="pause-btn" onclick="closePauseSettings()" style="flex: 1;">
+                                                ❌ Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Pause Overlay (disconnect) -->
                             <div id="pauseOverlay" class="hidden">
                                 <div class="pause-message">GAME PAUSED</div>
                                 <div class="pause-subtext">Waiting for player to reconnect...</div>

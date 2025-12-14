@@ -8,10 +8,10 @@ export class FourPlayersGame extends Game {
         super(app, gameId, settings);  // ← PASSER settings au parent
         
         this.players = [
-            new Player(1, null), 
-            new Player(2, null), 
-            new Player(3, null), 
-            new Player(4, null)
+            new Player(1, null, this.settings.paddleSize), 
+            new Player(2, null, this.settings.paddleSize), 
+            new Player(3, null, this.settings.paddleSize), 
+            new Player(4, null, this.settings.paddleSize)
         ];
         this.state.players_position = [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }];
         this.state.score = [0, 0, 0, 0];

@@ -12,7 +12,7 @@ export type GameState = {
     score: number[];
 };
 
-// INTERFACE GameSettings
+// AJOUTER L'INTERFACE GameSettings
 export interface GameSettings {
     paddleSize: number;
     ballSpeed: number;
@@ -47,6 +47,7 @@ export abstract class Game {
     protected readonly NETWORK_FPS = 30; 
     protected readonly NETWORK_TICK = 1000 / this.NETWORK_FPS;
 
+    // MODIFIER LE CONSTRUCTEUR pour accepter settings
     constructor(protected app: FastifyApp, public gameId: string, settings?: GameSettings) {
         console.log(`Game ${this.gameId} created`);
         
@@ -179,7 +180,12 @@ export abstract class Game {
              }
         }
         
-        this.broadcast({ type: 'game_state_update', state: this.state });
+        // ENVOYER paddleSize au frontend
+        this.broadcast({ 
+            type: 'game_state_update', 
+            state: this.state,
+            paddleSize: this.settings.paddleSize
+        });
     }
 
     protected updatePhysics() {
@@ -203,7 +209,7 @@ export abstract class Game {
                     return;
                 }
             }
-            this.ball.resetBall();
+            this.ball.resetBall(this.settings.ballSpeed);
         }
 
         // Check paddle collisions - generic for 2 players for now, can be overridden
