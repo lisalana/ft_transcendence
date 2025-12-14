@@ -4,46 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ft_transcendence</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #0a0a0f;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-family: sans-serif;
-            color: white;
-        }
-        
-        .loader {
-            text-align: center;
-        }
-        
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            border-left-color: #667eea;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
-    <script>
-        // Redirection immédiate vers home.html
-        window.location.replace("home.html");
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="loader">
-        <div class="spinner"></div>
-        <p>Loading ft_transcendence...</p>
-    </div>
+    <!-- Animated Background -->
+    <div id="stars"></div>
+    <div class="nebula"></div>
+
+    <!-- Main Container - Le contenu sera injecté ici -->
+    <div id="app" class="container"></div>
+
+    <!-- Scripts -->
+    <script src="./home.js"></script>
+    <script src="./game.js"></script>
+    <script src="./router.js"></script>
+    <script src="./main.js"></script>
+    <script>
+        // Initialize router
+        Router.init();
+    </script>
 </body>
 </html>

@@ -1,17 +1,11 @@
-const startScreen = document.getElementById('startScreen');
-const gameScreen = document.getElementById('gameScreen');
-const startBtn = document.getElementById('startBtn');
-const lobbyInfo = document.getElementById('lobbyInfo');
-const canvasContainer = document.getElementById('canvasContainer');
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-const pauseOverlay = document.getElementById('pauseOverlay');
+// Variables globales (initialisées plus tard)
+let startScreen, gameScreen, startBtn, lobbyInfo, canvasContainer, canvas, ctx, pauseOverlay;
 
 let gameId = null;
 let ws = null;
 let playersConnected = {};
 let gameState = null;
-let currentMode = '2players'; // Default
+let currentMode = '2players';
 let totalPlayers = 2;
 
 // Particle System
@@ -62,15 +56,12 @@ function createExplosion(x, y, color) {
 function renderGameOver() {
     if (!isGameOver) return;
 
-    // Semi-transparent clear for trail effect
     ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Update and draw particles
     particles = particles.filter(p => p.update());
     particles.forEach(p => p.draw(ctx));
 
-    // Draw Winner Text
     ctx.save();
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 60px "Segoe UI", sans-serif';
@@ -84,7 +75,26 @@ function renderGameOver() {
     animationFrameId = requestAnimationFrame(renderGameOver);
 }
 
-startBtn.addEventListener('click', startGame);
+// ===== FONCTION APPELÉE PAR game.js =====
+function initGameElements() {
+    // Récupérer tous les éléments du DOM
+    startScreen = document.getElementById('startScreen');
+    gameScreen = document.getElementById('gameScreen');
+    startBtn = document.getElementById('startBtn');
+    lobbyInfo = document.getElementById('lobbyInfo');
+    canvasContainer = document.getElementById('canvasContainer');
+    canvas = document.getElementById('gameCanvas');
+    pauseOverlay = document.getElementById('pauseOverlay');
+
+    if (canvas) {
+        ctx = canvas.getContext('2d');
+    }
+
+    // Attacher l'event listener
+    if (startBtn) {
+        startBtn.addEventListener('click', startGame);
+    }
+}
 
 async function createGame(mode) {
     try {
@@ -95,12 +105,10 @@ async function createGame(mode) {
             gameId = data.gameId;
             currentMode = mode;
 
-            // Determine total players
             if (mode === '2players') totalPlayers = 2;
             else if (mode === '3players') totalPlayers = 3;
             else if (mode === '4players') totalPlayers = 4;
 
-            // Resize canvas for 3/4 players
             if (totalPlayers > 2) {
                 canvas.width = 800;
                 canvas.height = 800;
@@ -119,15 +127,14 @@ async function createGame(mode) {
 
 function initLobby() {
     startScreen.classList.add('hidden');
-    gameScreen.classList.add('active');
+    gameScreen.classList.remove('hidden');
 
-    lobbyInfo.innerHTML = ''; // Clear previous
+    lobbyInfo.innerHTML = '';
     playersConnected = {};
 
     for (let i = 1; i <= totalPlayers; i++) {
         playersConnected[i] = false;
 
-        // Create Card
         const card = document.createElement('div');
         card.className = 'player-card';
         card.id = `p${i}Card`;
@@ -139,20 +146,18 @@ function initLobby() {
         else if (i === 4) title += " (Bottom)";
 
         card.innerHTML = `
-                    <h3>${title}</h3>
-                    <div class="status-badge" id="p${i}Status">Waiting for connection...</div>
-                    <div id="qr-p${i}" class="qr-placeholder"></div>
-                    <div class="controls-hint">Scan to join</div>
-                `;
+            <h3>${title}</h3>
+            <div class="status-badge" id="p${i}Status">Waiting for connection...</div>
+            <div id="qr-p${i}" class="qr-placeholder"></div>
+            <div class="controls-hint">Scan to join</div>
+        `;
         lobbyInfo.appendChild(card);
 
-        // Generate QR
         setTimeout(() => {
             generateQR(`qr-p${i}`, getControllerUrl(i));
         }, 0);
     }
 
-    // Connect WebSocket
     connectWebSocket();
 }
 
@@ -182,7 +187,6 @@ function generateQR(elementId, text) {
 function connectWebSocket() {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/api/game/${gameId}/websocket`;
-    // alert(wsUrl);
 
     ws = new WebSocket(wsUrl);
 
@@ -208,11 +212,11 @@ function handleMessage(data) {
     }
     else if (data.type === 'game_paused') {
         pauseOverlay.classList.remove('hidden');
-        lobbyInfo.classList.remove('hidden'); // Show QR codes
+        lobbyInfo.classList.remove('hidden');
     }
     else if (data.type === 'game_resumed') {
         pauseOverlay.classList.add('hidden');
-        lobbyInfo.classList.add('hidden'); // Hide QR codes
+        lobbyInfo.classList.add('hidden');
     }
     else if (data.type === 'game_state_update') {
         if (!isGameOver) {
@@ -224,15 +228,12 @@ function handleMessage(data) {
         winnerId = data.winnerId;
         isGameOver = true;
 
-        // Trigger explosion
         const color = winnerId === 1 ? '#667eea' : '#764ba2';
         createExplosion(canvas.width / 2, canvas.height / 2, color);
 
-        // Start animation loop
         if (animationFrameId) cancelAnimationFrame(animationFrameId);
         renderGameOver();
 
-        // Reset UI after delay
         setTimeout(() => {
             isGameOver = false;
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
@@ -245,7 +246,6 @@ function handleMessage(data) {
             gameState = null;
             particles = [];
 
-            // Reset scores visualization
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         }, 5000);
     }
@@ -267,7 +267,6 @@ function updatePlayerStatus(playerId, connected) {
         }
     }
 
-    // Enable start button if both are connected
     let allConnected = true;
     for (let i = 1; i <= totalPlayers; i++) {
         if (!playersConnected[i]) {
@@ -294,11 +293,9 @@ function startGame() {
 function drawGame() {
     if (!gameState) return;
 
-    // Clear
     ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Net
     ctx.strokeStyle = '#333';
     ctx.setLineDash([10, 15]);
     ctx.beginPath();
@@ -306,77 +303,61 @@ function drawGame() {
     ctx.lineTo(canvas.width / 2, canvas.height);
     ctx.stroke();
 
-    // Paddles
-    // P1 (Left)
     ctx.fillStyle = '#667eea';
     if (gameState.players_position && gameState.players_position[0]) {
         ctx.fillRect(gameState.players_position[0].x, gameState.players_position[0].y, 10, 50);
     }
 
-    // P2 (Right)
     ctx.fillStyle = '#764ba2';
     if (gameState.players_position && gameState.players_position[1]) {
         ctx.fillRect(gameState.players_position[1].x - 10, gameState.players_position[1].y, 10, 50);
     }
 
-    // P3 (Top) - Horizontal
     ctx.fillStyle = '#4caf50';
     if (gameState.players_position && gameState.players_position[2]) {
-        // Assuming x/y is top-left. Horizontal paddle 50x10
         ctx.fillRect(gameState.players_position[2].x, gameState.players_position[2].y, 50, 10);
     }
 
-    // P4 (Bottom) - Horizontal
     ctx.fillStyle = '#ff9800';
     if (gameState.players_position && gameState.players_position[3]) {
-        // Assuming x/y is top-left. Horizontal paddle 50x10
         ctx.fillRect(gameState.players_position[3].x, gameState.players_position[3].y - 10, 50, 10);
     }
 
-    // Ball
     ctx.fillStyle = '#fff';
     ctx.beginPath();
     ctx.arc(gameState.ball_position.x, gameState.ball_position.y, 6, 0, Math.PI * 2);
     ctx.fill();
 
-    // Glow effect for ball
     ctx.shadowBlur = 10;
     ctx.shadowColor = "white";
     ctx.fill();
     ctx.shadowBlur = 0;
 
-    // Scores
     if (gameState.score) {
         ctx.font = "bold 48px sans-serif";
         ctx.textAlign = "center";
 
-        // 2 Players: Standard Left/Right
         if (gameState.score.length === 2) {
-            ctx.fillStyle = "rgba(102, 126, 234, 0.5)"; // P1 Blue
+            ctx.fillStyle = "rgba(102, 126, 234, 0.5)";
             ctx.fillText(gameState.score[0], canvas.width / 4, 60);
 
-            ctx.fillStyle = "rgba(118, 75, 162, 0.5)"; // P2 Purple
+            ctx.fillStyle = "rgba(118, 75, 162, 0.5)";
             ctx.fillText(gameState.score[1], (canvas.width / 4) * 3, 60);
         }
-        // 3 or 4 Players: Corners/Edges
         else {
             ctx.font = "bold 32px sans-serif";
 
-            // P1 (Left - Blue)
             ctx.fillStyle = "rgba(102, 126, 234, 0.7)";
             ctx.fillText(gameState.score[0], 40, canvas.height / 2);
 
-            // P2 (Right - Purple)
             ctx.fillStyle = "rgba(118, 75, 162, 0.7)";
             ctx.fillText(gameState.score[1], canvas.width - 40, canvas.height / 2);
 
-            // P3 (Top - Green)
             if (gameState.score.length >= 3) {
                 ctx.fillStyle = "rgba(76, 175, 80, 0.7)";
                 ctx.fillText(gameState.score[2], canvas.width / 2, 40);
             }
 
-            // P4 (Bottom - Orange)
             if (gameState.score.length >= 4) {
                 ctx.fillStyle = "rgba(255, 152, 0, 0.7)";
                 ctx.fillText(gameState.score[3], canvas.width / 2, canvas.height - 20);
