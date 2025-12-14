@@ -193,6 +193,12 @@ input:focus-visible {
     margin-top: 80px;
 }
 
+/* Views adjustment for header */
+.view {
+    padding-top: 80px;
+    min-height: calc(100vh - 80px);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -557,6 +563,8 @@ footer {
     gap: 8px;
     backdrop-filter: blur(10px);
     margin-bottom: 30px;
+    width: auto;
+    max-width: fit-content;
 }
 
 .back-btn:hover {
@@ -567,6 +575,16 @@ footer {
 .game-header {
     text-align: center;
     margin-bottom: 40px;
+}
+
+.game-header h2 {
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+}
 }
 
 .game-header h2 {
