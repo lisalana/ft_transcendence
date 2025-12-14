@@ -1,5 +1,6 @@
 // Variables globales (initialisées plus tard)
 let startScreen, gameScreen, startBtn, lobbyInfo, canvasContainer, canvas, ctx, pauseOverlay;
+let settingsScreen, createGameBtn;
 
 let gameId = null;
 let ws = null;
@@ -7,6 +8,13 @@ let playersConnected = {};
 let gameState = null;
 let currentMode = '2players';
 let totalPlayers = 2;
+
+// Game Settings
+let gameSettings = {
+    paddleSize: 50,
+    ballSpeed: 3,
+    winScore: 11
+};
 
 // Particle System
 let particles = [];
@@ -85,6 +93,8 @@ function initGameElements() {
     canvasContainer = document.getElementById('canvasContainer');
     canvas = document.getElementById('gameCanvas');
     pauseOverlay = document.getElementById('pauseOverlay');
+    settingsScreen = document.getElementById('settingsScreen');
+    createGameBtn = document.getElementById('createGameBtn');
 
     if (canvas) {
         ctx = canvas.getContext('2d');
@@ -94,20 +104,77 @@ function initGameElements() {
     if (startBtn) {
         startBtn.addEventListener('click', startGame);
     }
+
+    if (createGameBtn) {
+        createGameBtn.addEventListener('click', () => createGame(currentMode));
+    }
+}
+
+// Initialize settings sliders
+function initSettingsSliders() {
+    const paddleSizeSlider = document.getElementById('paddleSize');
+    const ballSpeedSlider = document.getElementById('ballSpeed');
+    const winScoreSlider = document.getElementById('winScore');
+
+    const paddleSizeValue = document.getElementById('paddleSizeValue');
+    const ballSpeedValue = document.getElementById('ballSpeedValue');
+    const winScoreValue = document.getElementById('winScoreValue');
+
+    if (paddleSizeSlider) {
+        paddleSizeSlider.addEventListener('input', (e) => {
+            gameSettings.paddleSize = parseInt(e.target.value);
+            paddleSizeValue.textContent = e.target.value;
+        });
+    }
+
+    if (ballSpeedSlider) {
+        const speedLabels = ['Very Slow', 'Slow', 'Normal', 'Fast', 'Very Fast'];
+        ballSpeedSlider.addEventListener('input', (e) => {
+            gameSettings.ballSpeed = parseInt(e.target.value);
+            ballSpeedValue.textContent = speedLabels[e.target.value - 1];
+        });
+    }
+
+    if (winScoreSlider) {
+        winScoreSlider.addEventListener('input', (e) => {
+            gameSettings.winScore = parseInt(e.target.value);
+            winScoreValue.textContent = e.target.value;
+        });
+    }
+}
+
+// Navigate to settings screen
+function selectMode(mode) {
+    currentMode = mode;
+    
+    if (mode === '2players') totalPlayers = 2;
+    else if (mode === '3players') totalPlayers = 3;
+    else if (mode === '4players') totalPlayers = 4;
+
+    startScreen.classList.add('hidden');
+    settingsScreen.classList.remove('hidden');
+}
+
+// Back to mode selection
+function backToModeSelection() {
+    settingsScreen.classList.add('hidden');
+    startScreen.classList.remove('hidden');
 }
 
 async function createGame(mode) {
     try {
-        const res = await fetch(`${window.location.protocol}//${window.location.host}/api/game/create/${mode}`, { method: 'POST' });
+        const res = await fetch(`${window.location.protocol}//${window.location.host}/api/game/create/${mode}`, { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(gameSettings)
+        });
         const data = await res.json();
 
         if (data.status === 'ok') {
             gameId = data.gameId;
             currentMode = mode;
-
-            if (mode === '2players') totalPlayers = 2;
-            else if (mode === '3players') totalPlayers = 3;
-            else if (mode === '4players') totalPlayers = 4;
 
             if (totalPlayers > 2) {
                 canvas.width = 800;
@@ -117,6 +184,7 @@ async function createGame(mode) {
                 canvas.height = 400;
             }
 
+            settingsScreen.classList.add('hidden');
             initLobby();
         }
     } catch (e) {

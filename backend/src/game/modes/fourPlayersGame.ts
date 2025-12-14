@@ -1,10 +1,12 @@
 import { FastifyApp } from "../../fastify";
 import Player from "../player";
-import { Game } from "../game";
+import { Game, GameSettings } from "../game";
 
 export class FourPlayersGame extends Game {
-    constructor(app: FastifyApp, gameId: string) {
-        super(app, gameId);
+    // MODIFIER LE CONSTRUCTEUR pour accepter settings
+    constructor(app: FastifyApp, gameId: string, settings?: GameSettings) {
+        super(app, gameId, settings);  // ← PASSER settings au parent
+        
         this.players = [
             new Player(1, null), 
             new Player(2, null), 
@@ -17,7 +19,10 @@ export class FourPlayersGame extends Game {
 
     protected initializeGame() {
         this.state.score = [0, 0, 0, 0];
-        this.ball.resetBall();
+        
+        // APPLIQUER LA VITESSE DE LA BALLE selon settings
+        this.ball.resetBall(this.settings.ballSpeed);
+        
         this.players[0].position = { x: 0, y: 800 / 2 - 25 }; // Left
         this.players[1].position = { x: 800, y: 800 / 2 - 25 }; // Right
         this.players[2].position = { x: 800 / 2 - 25, y: 0 }; // Top
@@ -79,9 +84,9 @@ export class FourPlayersGame extends Game {
                     this.state.score[scorerIndex]++;
                 }
                 
-                // Check Win Condition
+                // UTILISER settings.winScore au lieu de 5
                 const maxScore = Math.max(...this.state.score);
-                if (maxScore >= 5) {
+                if (maxScore >= this.settings.winScore) {
                      const winnerIndex = this.state.score.indexOf(maxScore);
                      this.stop();
                      this.broadcast({ type: 'game_over', winnerId: winnerIndex + 1 });
@@ -90,31 +95,32 @@ export class FourPlayersGame extends Game {
             }
 
             this.ball.position = { x: 400, y: 400 };
-            this.ball.resetBall(); 
+            this.ball.resetBall(this.settings.ballSpeed); 
         }
 
+        // Paddles - PASSER paddleSize
         // P1 & P2
-        this.ball.checkPaddleCollision(this.players[0].position.x, this.players[0].position.y, 1);
-        this.ball.checkPaddleCollision(this.players[1].position.x - 10, this.players[1].position.y, 2);
+        this.ball.checkPaddleCollision(this.players[0].position.x, this.players[0].position.y, 1, this.settings.paddleSize);
+        this.ball.checkPaddleCollision(this.players[1].position.x - 10, this.players[1].position.y, 2, this.settings.paddleSize);
         
-        // P3 (Top)
+        // P3 (Top) - UTILISER paddleSize
         const p3 = this.players[2];
         if (ball.position.y - 7 <= p3.position.y + 10 && 
             ball.position.y + 7 >= p3.position.y &&
             ball.position.x + 7 >= p3.position.x &&
-            ball.position.x - 7 <= p3.position.x + 50) {
+            ball.position.x - 7 <= p3.position.x + this.settings.paddleSize) {
              
              this.ball.lastTouchedBy = 3;
              ball.velocity.y = -ball.velocity.y * 1.05;
              ball.position.y = p3.position.y + 10 + 7;
         }
         
-        // P4 (Bottom)
+        // P4 (Bottom) - UTILISER paddleSize
         const p4 = this.players[3];
         if (ball.position.y + 7 >= p4.position.y && 
             ball.position.y - 7 <= p4.position.y + 10 &&
             ball.position.x + 7 >= p4.position.x &&
-            ball.position.x - 7 <= p4.position.x + 50) {
+            ball.position.x - 7 <= p4.position.x + this.settings.paddleSize) {
              
              this.ball.lastTouchedBy = 4;
              ball.velocity.y = -ball.velocity.y * 1.05;

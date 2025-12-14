@@ -12,10 +12,20 @@ export type GameState = {
     score: number[];
 };
 
+// INTERFACE GameSettings
+export interface GameSettings {
+    paddleSize: number;
+    ballSpeed: number;
+    winScore: number;
+}
+
 export abstract class Game {
 
     public players : Player[] = [];
     public ball: Ball = new Ball();
+
+    // AJOUTER les settings
+    public settings: GameSettings;
 
     public state: GameState = {
         players_position: [],
@@ -37,8 +47,17 @@ export abstract class Game {
     protected readonly NETWORK_FPS = 30; 
     protected readonly NETWORK_TICK = 1000 / this.NETWORK_FPS;
 
-    constructor(protected app: FastifyApp, public gameId: string) {
+    constructor(protected app: FastifyApp, public gameId: string, settings?: GameSettings) {
         console.log(`Game ${this.gameId} created`);
+        
+        // Valeurs par défaut si pas de settings
+        this.settings = settings || {
+            paddleSize: 50,
+            ballSpeed: 3,
+            winScore: 11
+        };
+
+        console.log(`Game settings:`, this.settings);
     }
 
     public setWebsocket(websocket: WebSocket) {
@@ -177,9 +196,10 @@ export abstract class Game {
                 if (scorer === 1) this.state.score[0]++;
                 else if (scorer === 2) this.state.score[1]++;
 
-                if (this.state.score[0] >= 5 || this.state.score[1] >= 5) {
+                // UTILISER settings.winScore au lieu de 5
+                if (this.state.score[0] >= this.settings.winScore || this.state.score[1] >= this.settings.winScore) {
                     this.stop();
-                    this.broadcast({ type: 'game_over', winnerId: this.state.score[0] >= 5 ? 1 : 2 });
+                    this.broadcast({ type: 'game_over', winnerId: this.state.score[0] >= this.settings.winScore ? 1 : 2 });
                     return;
                 }
             }
@@ -188,8 +208,8 @@ export abstract class Game {
 
         // Check paddle collisions - generic for 2 players for now, can be overridden
         if (this.players.length >= 2) {
-             this.ball.checkPaddleCollision(this.players[0].position.x, this.players[0].position.y, 1);
-             this.ball.checkPaddleCollision(this.players[1].position.x - 10, this.players[1].position.y, 2);
+             this.ball.checkPaddleCollision(this.players[0].position.x, this.players[0].position.y, 1, this.settings.paddleSize);
+             this.ball.checkPaddleCollision(this.players[1].position.x - 10, this.players[1].position.y, 2, this.settings.paddleSize);
         }
     }
 

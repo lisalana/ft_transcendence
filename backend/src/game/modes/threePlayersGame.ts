@@ -1,10 +1,12 @@
 import { FastifyApp } from "../../fastify";
 import Player from "../player";
-import { Game } from "../game";
+import { Game, GameSettings } from "../game";
 
 export class ThreePlayersGame extends Game {
-    constructor(app: FastifyApp, gameId: string) {
-        super(app, gameId);
+    // MODIFIER LE CONSTRUCTEUR pour accepter settings
+    constructor(app: FastifyApp, gameId: string, settings?: GameSettings) {
+        super(app, gameId, settings);  // ← PASSER settings au parent
+        
         this.players = [new Player(1, null), new Player(2, null), new Player(3, null)];
         this.state.players_position = [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }];
         this.state.score = [0, 0, 0];
@@ -12,7 +14,10 @@ export class ThreePlayersGame extends Game {
 
     protected initializeGame() {
         this.state.score = [0, 0, 0];
-        this.ball.resetBall(); 
+        
+        // APPLIQUER LA VITESSE DE LA BALLE selon settings
+        this.ball.resetBall(this.settings.ballSpeed);
+        
         this.players[0].position = { x: 0, y: 800 / 2 - 25 }; // Left, Centered in 800h
         this.players[1].position = { x: 800, y: 800 / 2 - 25 }; // Right
         this.players[2].position = { x: 800 / 2 - 25, y: 0 }; // Top
@@ -85,9 +90,9 @@ export class ThreePlayersGame extends Game {
                     this.state.score[scorerIndex]++;
                 }
                 
-                // Check Win Condition
+                // UTILISER settings.winScore au lieu de 5
                 const maxScore = Math.max(...this.state.score);
-                if (maxScore >= 5) {
+                if (maxScore >= this.settings.winScore) {
                      // Winner is the one with max score
                      const winnerIndex = this.state.score.indexOf(maxScore);
                      this.stop();
@@ -97,24 +102,21 @@ export class ThreePlayersGame extends Game {
             }
 
             this.ball.position = { x: 400, y: 400 };
-            // Reset velocity with some randomness? For now keep momentum or simple reset
-            this.ball.resetBall(); 
+            this.ball.resetBall(this.settings.ballSpeed); 
         }
 
-        // Paddles
+        // Paddles - PASSER paddleSize
         // P1 (Left)
-        this.ball.checkPaddleCollision(this.players[0].position.x, this.players[0].position.y, 1);
+        this.ball.checkPaddleCollision(this.players[0].position.x, this.players[0].position.y, 1, this.settings.paddleSize);
         // P2 (Right)
-        this.ball.checkPaddleCollision(this.players[1].position.x - 10, this.players[1].position.y, 2);
+        this.ball.checkPaddleCollision(this.players[1].position.x - 10, this.players[1].position.y, 2, this.settings.paddleSize);
         
-        // P3 (Top - Horizontal)
+        // P3 (Top - Horizontal) - UTILISER paddleSize
         const p3 = this.players[2];
-        // Ball: x, y, radius 7. Paddle: x, y, w=50, h=10.
-        // AABB
         if (ball.position.y - 7 <= p3.position.y + 10 && 
             ball.position.y + 7 >= p3.position.y &&
             ball.position.x + 7 >= p3.position.x &&
-            ball.position.x - 7 <= p3.position.x + 50) {
+            ball.position.x - 7 <= p3.position.x + this.settings.paddleSize) {
              
              this.ball.lastTouchedBy = 3;
              ball.velocity.y = -ball.velocity.y * 1.05;

@@ -6,9 +6,9 @@ const Home = {
         app.innerHTML = `
             <div class="view">
                 <header>
-                    <h1>🏓 ft_transcendence</h1>
+                    <h1> ft_transcendence</h1>
                     <p class="subtitle">The Ultimate Pong Experience</p>
-                    <p class="tagline">Play • Compete • Transcend</p>
+                    <p class="tagline"> • Play & Compete • </p>
                 </header>
 
                 <div class="cards-grid">
@@ -29,7 +29,7 @@ const Home = {
                         </svg>
                         <div>
                             <h2 class="card-title">Play Game</h2>
-                            <p class="card-description">Challenge your friends in epic Pong battles. 2-4 players supported with mobile controllers!</p>
+                            <p class="card-description">Challenge your friends !</p>
                         </div>
                     </div>
 
@@ -51,7 +51,7 @@ const Home = {
                         </svg>
                         <div>
                             <h2 class="card-title">Leaderboard</h2>
-                            <p class="card-description">Climb the ranks and prove you're the ultimate Pong champion!</p>
+                            <p class="card-description">Climb the ranks !</p>
                         </div>
                     </div>
 
@@ -70,7 +70,7 @@ const Home = {
                         </svg>
                         <div>
                             <h2 class="card-title">Profile</h2>
-                            <p class="card-description">View your stats, achievements, and game history.</p>
+                            <p class="card-description">View your stats & achievements</p>
                         </div>
                     </div>
 
@@ -93,13 +93,13 @@ const Home = {
                         </svg>
                         <div>
                             <h2 class="card-title">Settings</h2>
-                            <p class="card-description">Customize your experience, change themes, and manage preferences.</p>
+                            <p class="card-description"> Manage preferences.</p>
                         </div>
                     </div>
                 </div>
 
                 <footer>
-                    <p>© 2025 ft_transcendence | Made with ❤️ at 42 School</p>
+                    <p> | © 2025 ft_transcendence | </p>
                 </footer>
             </div>
         `;

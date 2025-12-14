@@ -4,24 +4,34 @@ import { TwoPlayersGame } from "./modes/twoPlayersGame";
 import { ThreePlayersGame } from "./modes/threePlayersGame";
 import { FourPlayersGame } from "./modes/fourPlayersGame";
 
+// AJOUTER CETTE INTERFACE
+export interface GameSettings {
+    paddleSize: number;
+    ballSpeed: number;
+    winScore: number;
+}
+
 export default class GamesManager {
     private instances: Map<string, Game> = new Map();
 
-    public createGame(app: any, gameId: string, mode: string): Game {
+    // AJOUTER LE PARAMÈTRE settings
+    public createGame(app: any, gameId: string, mode: string, settings: GameSettings): Game {
         let game: Game;
+
         switch (mode) {
             case '2players':
-                game = new TwoPlayersGame(app, gameId);
+                game = new TwoPlayersGame(app, gameId, settings);
                 break;
             case '3players':
-                game = new ThreePlayersGame(app, gameId);
+                game = new ThreePlayersGame(app, gameId, settings);
                 break;
             case '4players':
-                game = new FourPlayersGame(app, gameId);
+                game = new FourPlayersGame(app, gameId, settings);
                 break;
             default:
                 throw new Error("Invalid game mode");
         }
+
         this.instances.set(gameId, game);
         return game;
     }
