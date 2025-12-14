@@ -11,17 +11,20 @@
     <!-- Animated Background -->
     <div id="stars"></div>
     <div class="nebula"></div>
-
+    
     <!-- Main Container - Le contenu sera injecté ici -->
     <div id="app" class="container"></div>
-
+    
     <!-- Scripts -->
+    <script src="./i18n.js"></script>
+    <script src="./header.js"></script>
     <script src="./home.js"></script>
     <script src="./game.js"></script>
     <script src="./router.js"></script>
     <script src="./main.js"></script>
     <script>
-        // Initialize router
+        // Initialize header, router
+        Header.render();
         Router.init();
     </script>
 </body>

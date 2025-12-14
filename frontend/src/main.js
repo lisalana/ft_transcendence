@@ -18,6 +18,8 @@ let gameSettings = {
     winScore: 11
 };
 
+// ===== FIN DES VARIABLES GLOBALES =====
+
 // Particle System
 let particles = [];
 let isGameOver = false;
@@ -628,10 +630,4 @@ function drawGame() {
             }
         }
     }
-    
-    // DEBUG: Afficher la taille du paddle
-    ctx.fillStyle = "yellow";
-    ctx.font = "20px sans-serif";
-    ctx.textAlign = "left";
-    ctx.fillText(`Paddle: ${currentPaddleSize}px`, 10, 30);
 }
