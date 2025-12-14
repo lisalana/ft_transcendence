@@ -3,242 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ft_transcendence - Host</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <title>ft_transcendence</title>
     <style>
-        :root {
-            --primary: #667eea;
-            --secondary: #764ba2;
-            --success: #4caf50;
-            --error: #f44336;
-            --bg: #1a1a2e;
-            --text: #ffffff;
-            --warning: #ff9800;
-        }
-
-        * {
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
+            background: #0a0a0f;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: sans-serif;
+            color: white;
         }
-
-        .container {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 900px;
-            width: 95%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        
+        .loader {
             text-align: center;
-            position: relative;
-        }
-
-        h1 {
-            font-size: 3rem;
-            margin-bottom: 30px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .btn {
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            border: none;
-            border-radius: 50px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(118, 75, 162, 0.4);
-        }
-
-        .btn:disabled {
-            background: #555;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-            opacity: 0.7;
-        }
-
-        .game-area {
-            display: none;
-            margin-top: 20px;
-        }
-
-        .game-area.active {
-            display: block;
-        }
-
-        canvas {
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            background: #000;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-            max-width: 100%;
-            height: auto;
-        }
-
-        .lobby-info {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin: 30px 0;
-            flex-wrap: wrap;
-        }
-
-        .player-card {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 15px;
-            width: 250px;
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        .player-card.connected {
-            border-color: var(--success);
-            background: rgba(76, 175, 80, 0.1);
-        }
-
-        .player-card h3 {
-            margin-bottom: 15px;
-            font-size: 1.2rem;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            background: rgba(255, 255, 255, 0.1);
-            margin-bottom: 15px;
-        }
-
-        .connected .status-badge {
-            background: var(--success);
-            color: white;
-        }
-
-        .qr-placeholder {
-            background: white;
-            padding: 10px;
-            border-radius: 10px;
-            display: inline-block;
-            margin-top: 10px;
-        }
-
-        .controls-hint {
-            margin-top: 20px;
-            color: #aaa;
-            font-size: 0.9rem;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        #startBtn {
-            background: var(--success);
-            margin-top: 20px;
-            font-size: 1.5rem;
-            padding: 20px 60px;
-            animation: pulse 2s infinite;
-        }
-
-        #startBtn:disabled {
-            background: #555;
-            animation: none;
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(76, 175, 80, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
-        }
-
-        #pauseOverlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border-radius: 20px;
-            z-index: 100;
-            backdrop-filter: blur(5px);
         }
         
-        .pause-message {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--warning);
-            margin-bottom: 10px;
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
         }
         
-        .pause-subtext {
-            color: #ddd;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
-
     </style>
+    <script>
+        // Redirection immédiate vers home.html
+        window.location.replace("home.html");
+    </script>
 </head>
 <body>
-    <div class="container">
-        <h1>🏓 Pong Master</h1>
-
-        <!-- Initial Screen -->
-        <div id="startScreen">
-            <p style="margin-bottom: 30px; font-size: 1.1rem; color: #ddd;">Host a game on your screen and use your phones as controllers.</p>
-            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                <button onclick="createGame('2players')" class="btn">2 Players</button>
-                <button onclick="createGame('3players')" class="btn">3 Players</button>
-                <button onclick="createGame('4players')" class="btn">4 Players</button>
-            </div>
-        </div>
-
-        <!-- Lobby / Game Screen -->
-        <div id="gameScreen" class="game-area">
-            <!-- Canvas (Hidden initially) -->
-            <div id="canvasContainer" class="hidden" style="margin-top: 30px; position: relative;">
-                <canvas id="gameCanvas" width="800" height="400"></canvas>
-                <!-- Pause Overlay -->
-                <div id="pauseOverlay" class="hidden">
-                    <div class="pause-message">GAME PAUSED</div>
-                    <div class="pause-subtext">Waiting for player to reconnect...</div>
-                </div>
-            </div>
-
-            <!-- Lobby Info / Player Cards (Displayed in lobby and when paused) -->
-            <div class="lobby-info" id="lobbyInfo">
-                <!-- Cards will be generated dynamically -->
-            </div>
-
-            <button id="startBtn" class="btn" disabled>Start Game</button>
-        </div>
+    <div class="loader">
+        <div class="spinner"></div>
+        <p>Loading ft_transcendence...</p>
     </div>
-    <script src="./main.js"></script>
 </body>
 </html>
