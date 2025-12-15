@@ -34,8 +34,8 @@ const Home = {
                     </div>
 
                     <!-- Leaderboard Card -->
-                    <div class="card disabled">
-                        <span class="card-badge coming-soon" data-i18n="home.leaderboard.badge">${t('home.leaderboard.badge')}</span>
+                    <div class="card" onclick="Router.navigate('leaderboard')" tabindex="0" role="button" aria-label="Leaderboard" onkeypress="if(event.key==='Enter') Router.navigate('leaderboard')">
+                        <span class="card-badge" data-i18n="home.leaderboard.badge">LIVE</span>
                         <svg class="card-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M30 25 L30 15 L70 15 L70 25" stroke="url(#gradient2)" stroke-width="3" fill="none"/>
                             <path d="M35 25 L35 45 Q35 55 50 55 Q65 55 65 45 L65 25 Z" stroke="url(#gradient2)" stroke-width="3" fill="rgba(118, 75, 162, 0.1)"/>

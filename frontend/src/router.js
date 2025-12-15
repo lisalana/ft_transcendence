@@ -2,7 +2,8 @@
 const Router = {
     routes: {
         'home': Home,
-        'game': Game
+        'game': Game,
+        'leaderboard': Leaderboard
     },
 
     init() {

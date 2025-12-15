@@ -52,6 +52,19 @@ export class DatabaseManager {
       )
     `);
 
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS leaderboard (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        player_name TEXT UNIQUE NOT NULL,
+        wins INTEGER DEFAULT 0,
+        losses INTEGER DEFAULT 0,
+        total_games INTEGER DEFAULT 0,
+        win_rate REAL DEFAULT 0.0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     console.log('✅ Database tables initialized');
   }
 

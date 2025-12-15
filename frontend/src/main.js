@@ -484,6 +484,27 @@ function handleMessage(data) {
         winnerId = data.winnerId;
         isGameOver = true;
 
+        const winnerName = `Player ${winnerId}`;
+        const loserIds = [];
+    
+        // Determiner les perdants
+        for (let i = 1; i <= totalPlayers; i++) {
+            if (i !== winnerId) {
+                loserIds.push(i);
+            }
+        }
+    
+        // Enregistrer les scores dans le leaderboard
+        updateLeaderboardScore(winnerName, true).then(() => {
+            console.log(`✅ ${winnerName} victory recorded in leaderboard`);
+        });
+    
+        loserIds.forEach(loserId => {
+            updateLeaderboardScore(`Player ${loserId}`, false).then(() => {
+                console.log(`✅ Player ${loserId} defeat recorded in leaderboard`);
+            });
+        });
+
         const color = winnerId === 1 ? '#667eea' : '#764ba2';
         createExplosion(canvas.width / 2, canvas.height / 2, color);
 
