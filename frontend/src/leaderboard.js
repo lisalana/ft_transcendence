@@ -8,18 +8,21 @@ const Leaderboard = {
                 <button class="back-btn" onclick="Router.navigate('home')">← Back to Home</button>
                 
                 <div class="leaderboard-header">
-                    <h2 class="leaderboard-title">🏆 Leaderboard</h2>
-                    <p class="leaderboard-subtitle">Top Players Rankings</p>
+                    <h2 class="leaderboard-title" data-i18n="leaderboardPage.title">🏆 Leaderboard</h2>
+                    <p class="leaderboard-subtitle" data-i18n="leaderboardPage.subtitle">Top Players Rankings</p>
                 </div>
 
                 <div id="leaderboardContent" class="leaderboard-container">
                     <div class="loading">
                         <div class="loading-spinner"></div>
-                        <p>Loading leaderboard...</p>
+                        <p data-i18n="leaderboardPage.loading">Loading leaderboard...</p>
                     </div>
                 </div>
             </div>
         `;
+
+        // Appliquer les traductions
+        updatePageTranslations();
 
         // Charger le leaderboard
         await this.loadLeaderboard();
@@ -36,10 +39,11 @@ const Leaderboard = {
                 container.innerHTML = `
                     <div class="empty-leaderboard">
                         <div class="empty-icon">🎮</div>
-                        <p>No scores yet. Be the first to play!</p>
-                        <button onclick="Router.navigate('game')" class="play-btn">Play Now</button>
+                        <p data-i18n="leaderboardPage.noScores">No scores yet. Be the first to play!</p>
+                        <button onclick="Router.navigate('game')" class="play-btn" data-i18n="leaderboardPage.playNow">Play Now</button>
                     </div>
                 `;
+                updatePageTranslations();
                 return;
             }
 
@@ -84,23 +88,27 @@ const Leaderboard = {
             container.innerHTML = `
                 <div class="leaderboard-table">
                     <div class="leaderboard-header-row">
-                        <div class="header-position">Rank</div>
-                        <div class="header-player">Player</div>
-                        <div class="header-winrate">Win Rate</div>
+                        <div class="header-position" data-i18n="leaderboardPage.rank">Rank</div>
+                        <div class="header-player" data-i18n="leaderboardPage.player">Player</div>
+                        <div class="header-winrate" data-i18n="leaderboardPage.winRate">Win Rate</div>
                     </div>
                     ${leaderboardHTML}
                 </div>
             `;
+
+            // Appliquer les traductions après avoir généré le HTML
+            updatePageTranslations();
 
         } catch (error) {
             console.error('Error loading leaderboard:', error);
             container.innerHTML = `
                 <div class="error-message">
                     <div class="error-icon">❌</div>
-                    <p>Failed to load leaderboard</p>
-                    <button onclick="Leaderboard.loadLeaderboard()" class="retry-btn">Retry</button>
+                    <p data-i18n="leaderboardPage.error">Failed to load leaderboard</p>
+                    <button onclick="Leaderboard.loadLeaderboard()" class="retry-btn" data-i18n="leaderboardPage.retry">Retry</button>
                 </div>
             `;
+            updatePageTranslations();
         }
     },
 

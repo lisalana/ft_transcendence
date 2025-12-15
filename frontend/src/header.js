@@ -140,7 +140,7 @@ const Header = {
                 const authMenuUser = document.getElementById('authMenuUser');
                 
                 // Afficher le bon menu selon l'état de connexion
-                if (currentUser) {
+                if (window.currentUser) {
                     authMenuLogin.classList.add('hidden');
                     authMenuUser.classList.remove('hidden');
                 } else {
@@ -273,7 +273,7 @@ function loadAccessibilityPreferences() {
 }
 
 // ===== AUTHENTIFICATION =====
-let currentUser = null;
+window.currentUser = null;
 
 async function loadCurrentUser() {
     try {
@@ -281,7 +281,7 @@ async function loadCurrentUser() {
         const data = await response.json();
         
         if (data.success && data.authenticated) {
-            currentUser = data.user;
+            window.currentUser = data.user;
             updateAuthButton();
         }
     } catch (error) {
@@ -294,10 +294,10 @@ function updateAuthButton() {
     
     if (!authBtn) return;
     
-    if (currentUser) {
+    if (window.currentUser) {
         authBtn.innerHTML = `
-            <img src="${currentUser.avatar_url}" alt="" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 8px;">
-            <span>${currentUser.username}</span>
+            <img src="${window.currentUser.avatar_url}" alt="" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 8px;">
+            <span>${window.currentUser.username}</span>
         `;
         authBtn.style.display = 'flex';
         authBtn.style.alignItems = 'center';

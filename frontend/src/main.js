@@ -335,14 +335,37 @@ async function createGame(mode) {
     }
     
     try {
-        console.log('📤 Sending game settings:', gameSettings);
+        // Préparer les données avec les usernames
+        const requestData = {
+            ...gameSettings,
+            players: []
+        };
+        
+        // Ajouter les joueurs avec leurs usernames
+        for (let i = 1; i <= totalPlayers; i++) {
+            if (i === 1 && window.currentUser) {
+            // Joueur 1 = utilisateur connecté
+                requestData.players.push({
+                    username: window.currentUser.username,
+                    userId: window.currentUser.id
+                });
+            } else {
+                // Autres joueurs = invités
+                requestData.players.push({
+                    username: `Player ${i}`,
+                    userId: null
+                });
+            }
+        }
+        
+        console.log('📤 Sending game data:', requestData);
         
         const res = await fetch(`${window.location.protocol}//${window.location.host}/api/game/create/${mode}`, { 
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(gameSettings)
+            body: JSON.stringify(requestData)
         });
         const data = await res.json();
 
@@ -351,6 +374,7 @@ async function createGame(mode) {
             currentMode = mode;
             
             console.log('✅ New game created with ID:', gameId);
+            console.log('👥 Players:', requestData.players);
 
             if (totalPlayers > 2) {
                 canvas.width = 800;
@@ -385,18 +409,33 @@ function initLobby() {
     for (let i = 1; i <= totalPlayers; i++) {
         playersConnected[i] = false;
 
+            // DEBUG
+        console.log('🔍 Player', i);
+        console.log('   window.currentUser:', window.currentUser);
+        console.log('   i === 1:', i === 1);
+
         const card = document.createElement('div');
         card.className = 'player-card';
         card.id = `p${i}Card`;
 
-        let title = `Player ${i}`;
-        if (i === 1) title += " (Left)";
-        else if (i === 2 && totalPlayers >= 2) title += " (Right)";
-        else if (i === 3) title += " (Top)";
-        else if (i === 4) title += " (Bottom)";
+        // Déterminer le nom du joueur
+        let playerName = `Player ${i}`;
+        if (i === 1 && window.currentUser) {
+            playerName = window.currentUser.username;
+            console.log('   ✅ Using username:', playerName);
+        } else {
+            console.log('   ❌ Using default Player', i);
+        }
+
+        // Ajouter la position
+        let position = '';
+        if (i === 1) position = " (Left)";
+        else if (i === 2 && totalPlayers >= 2) position = " (Right)";
+        else if (i === 3) position = " (Top)";
+        else if (i === 4) position = " (Bottom)";
 
         card.innerHTML = `
-            <h3>${title}</h3>
+            <h3>${playerName}${position}</h3>
             <div class="status-badge" id="p${i}Status">Waiting for connection...</div>
             <div id="qr-p${i}" class="qr-placeholder"></div>
             <div class="controls-hint">Scan to join</div>
@@ -484,24 +523,34 @@ function handleMessage(data) {
         winnerId = data.winnerId;
         isGameOver = true;
 
-        const winnerName = `Player ${winnerId}`;
+        // Utiliser le vrai username si disponible
+        let winnerName = `Player ${winnerId}`;
+        if (winnerId === 1 && window.currentUser) {
+            winnerName = window.currentUser.username;
+        }
+
         const loserIds = [];
-    
+
         // Determiner les perdants
         for (let i = 1; i <= totalPlayers; i++) {
             if (i !== winnerId) {
                 loserIds.push(i);
             }
         }
-    
+
         // Enregistrer les scores dans le leaderboard
         updateLeaderboardScore(winnerName, true).then(() => {
             console.log(`✅ ${winnerName} victory recorded in leaderboard`);
         });
-    
+
         loserIds.forEach(loserId => {
-            updateLeaderboardScore(`Player ${loserId}`, false).then(() => {
-                console.log(`✅ Player ${loserId} defeat recorded in leaderboard`);
+            let loserName = `Player ${loserId}`;
+            if (loserId === 1 && window.currentUser) {
+                loserName = window.currentUser.username;
+            }
+        
+            updateLeaderboardScore(loserName, false).then(() => {
+                console.log(`✅ ${loserName} defeat recorded in leaderboard`);
             });
         });
 

@@ -9,6 +9,10 @@ export interface GameSettings {
     paddleSize: number;
     ballSpeed: number;
     winScore: number;
+    players?: Array<{
+        username: string;
+        userId: number | null;
+    }>;
 }
 
 export default class GamesManager {
