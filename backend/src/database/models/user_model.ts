@@ -6,6 +6,7 @@ export interface User {
     username: string;
     email: string;
     password_hash: string;
+    access_token?: string;
     avatar_url?: string;
     created_at?: string;
     updated_at?: string;
@@ -27,25 +28,25 @@ export class UserModel {
     }
 
     create(user: User): User {
-        const statement = this.db.prepare(`
-            INSERT INTO users (username, email, password_hash, avatar_url)
-            VALUES (?, ?, ?, ?)
-            `);
+    const statement = this.db.prepare(`
+        INSERT INTO users (username, email, access_token, avatar_url)
+        VALUES (?, ?, ?, ?)
+    `);
 
     const result = statement.run(
         user.username,
         user.email,
-        user.password_hash,
+        user.access_token || user.password_hash || '',  // Support les deux
         user.avatar_url || null,
     );
 
     const statsStatement = this.db.prepare(`
         INSERT INTO user_stats (user_id) VALUES (?)
-        `);
+    `);
     statsStatement.run(result.lastInsertRowid);
 
     return this.findById(result.lastInsertRowid as number)!;
-    }
+}
 
     findById(id: number): User | undefined {
         const statement = this.db.prepare(`SELECT * FROM users WHERE id = ?`);
@@ -55,6 +56,11 @@ export class UserModel {
     findByUsername(username: string): User | undefined {
         const statement = this.db.prepare(`SELECT * FROM users WHERE username = ?`);
         return statement.get(username) as User | undefined;
+    }
+
+    findByEmail(email: string): User | undefined {
+        const statement = this.db.prepare(`SELECT * FROM users WHERE email = ?`);
+        return statement.get(email) as User | undefined;
     }
 
     findAll(): User[] {
