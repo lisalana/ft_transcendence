@@ -1,4 +1,4 @@
-// Variables globales (initialisées plus tard)
+// Variables globales
 let startScreen, gameScreen, startBtn, lobbyInfo, canvasContainer, canvas, ctx, pauseOverlay;
 let settingsScreen, createGameBtn, pauseMenu;
 
@@ -13,12 +13,10 @@ let isPaused = false;
 
 // Game Settings
 let gameSettings = {
-    paddleSize: 80,  // ← Nouvelle valeur par défaut
+    paddleSize: 80,  // valeur par defaut
     ballSpeed: 3,
     winScore: 11
 };
-
-// ===== FIN DES VARIABLES GLOBALES =====
 
 // Particle System
 let particles = [];
@@ -87,9 +85,9 @@ function renderGameOver() {
     animationFrameId = requestAnimationFrame(renderGameOver);
 }
 
-// ===== FONCTION APPELÉE PAR game.js =====
+// ===== fonctions appelee par game.js =====
 function initGameElements() {
-    // Récupérer tous les éléments du DOM
+    // Recup tous les elements
     startScreen = document.getElementById('startScreen');
     gameScreen = document.getElementById('gameScreen');
     startBtn = document.getElementById('startBtn');
@@ -118,7 +116,7 @@ function initGameElements() {
     document.addEventListener('keydown', handleEscapeKey);
 }
 
-// Gérer la touche ESC
+// Gerer la touche ESC
 function handleEscapeKey(e) {
     if (e.key === 'Escape' && canvasContainer && !canvasContainer.classList.contains('hidden')) {
         togglePause();
@@ -142,7 +140,7 @@ function togglePause() {
 function showPauseSettings() {
     const pauseSettingsOverlay = document.getElementById('pauseSettingsOverlay');
     if (pauseSettingsOverlay) {
-        // Initialiser les sliders avec les valeurs actuelles
+        // Initialiser les sliders
         const pausePaddleSize = document.getElementById('pausePaddleSize');
         const pauseBallSpeed = document.getElementById('pauseBallSpeed');
         const pauseWinScore = document.getElementById('pauseWinScore');
@@ -151,7 +149,7 @@ function showPauseSettings() {
         if (pauseBallSpeed) pauseBallSpeed.value = gameSettings.ballSpeed;
         if (pauseWinScore) pauseWinScore.value = gameSettings.winScore;
         
-        // Mettre à jour les affichages
+        // Mettre a jour les affichages
         updatePauseSettingsDisplay();
         
         // Attacher les listeners
@@ -179,14 +177,14 @@ function applyPauseSettings() {
     if (pauseBallSpeed) gameSettings.ballSpeed = parseInt(pauseBallSpeed.value);
     if (pauseWinScore) gameSettings.winScore = parseInt(pauseWinScore.value);
     
-    // Mettre à jour currentPaddleSize pour le frontend
+    // Mettre a jour currentPaddleSize pour le front
     currentPaddleSize = gameSettings.paddleSize;
     
     console.log('⚙️ Settings updated:', gameSettings);
     
     closePauseSettings();
     
-    // Afficher une notification
+    // Afficher une notif
     showNotification('Settings will apply next round!');
 }
 
@@ -272,7 +270,7 @@ function initSettingsSliders() {
     const winScoreValue = document.getElementById('winScoreValue');
 
     if (paddleSizeSlider && paddleSizeValue) {
-        // Initialiser avec la valeur par défaut
+        // Initialiser avec la valeur par defaut
         paddleSizeValue.textContent = paddleSizeSlider.value;
         
         paddleSizeSlider.addEventListener('input', (e) => {
@@ -284,7 +282,7 @@ function initSettingsSliders() {
     if (ballSpeedSlider && ballSpeedValue) {
         const speedLabels = ['Very Slow', 'Slow', 'Normal', 'Fast', 'Very Fast'];
         
-        // Initialiser avec la valeur par défaut
+        // Initialiser avec la valeur par defaut
         ballSpeedValue.textContent = speedLabels[ballSpeedSlider.value - 1];
         
         ballSpeedSlider.addEventListener('input', (e) => {
@@ -294,7 +292,7 @@ function initSettingsSliders() {
     }
 
     if (winScoreSlider && winScoreValue) {
-        // Initialiser avec la valeur par défaut
+        // Initialiser avec la valeur par defaut
         winScoreValue.textContent = winScoreSlider.value;
         
         winScoreSlider.addEventListener('input', (e) => {
@@ -323,14 +321,14 @@ function backToModeSelection() {
 }
 
 async function createGame(mode) {
-    // FERMER l'ancien WebSocket s'il existe
+    // Fermer l'ancien WebSocket s'il existe
     if (ws) {
         console.log('🔌 Closing old WebSocket...');
         ws.close();
         ws = null;
     }
     
-    // Désactiver le bouton pour éviter les doubles clics
+    // Desactiver le bouton pour eviter doubles clics
     if (createGameBtn) {
         createGameBtn.disabled = true;
         createGameBtn.textContent = 'Creating...';
@@ -369,7 +367,7 @@ async function createGame(mode) {
         console.error('Failed to create game:', e);
         alert('Error creating game');
         
-        // Réactiver le bouton en cas d'erreur
+        // Reactiver le bouton en cas d'erreur
         if (createGameBtn) {
             createGameBtn.disabled = false;
             createGameBtn.textContent = 'Create Game →';
@@ -447,7 +445,7 @@ function connectWebSocket() {
             const data = JSON.parse(event.data);
             handleMessage(data);
         } catch (e) {
-            // Ignore non-JSON
+
         }
     };
 }
@@ -462,7 +460,7 @@ function handleMessage(data) {
         canvasContainer.classList.remove('hidden');
         isGameOver = false;
         isPaused = false;
-        // Initialiser paddleSize UNE SEULE FOIS
+        // Initialiser paddleSize une seule fois
         currentPaddleSize = gameSettings.paddleSize;
         console.log('🏓 Game started! Paddle size:', currentPaddleSize);
         console.log('   Game ID:', gameId);
@@ -478,9 +476,7 @@ function handleMessage(data) {
     else if (data.type === 'game_state_update') {
         if (!isGameOver && !isPaused) {
             gameState = data.state;
-            
-            // Ne plus afficher de warning - c'est normal si les settings ont été modifiés en pause
-            
+                        
             drawGame();
         }
     }

@@ -492,7 +492,8 @@ footer {
     transition: all 0.3s;
 }
 
-.slider::-webkit-slider-thumb:hover {
+/* Hover sur le slider lui-même au lieu du thumb */
+.slider:hover::-webkit-slider-thumb {
     transform: scale(1.2);
     box-shadow: 0 0 20px rgba(102, 126, 234, 0.8);
 }
@@ -584,16 +585,6 @@ footer {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     margin-bottom: 10px;
-}
-}
-
-.game-header h2 {
-    font-size: 3rem;
-    margin-bottom: 15px;
-    background: linear-gradient(135deg, var(--primary), var(--secondary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
 }
 
 .game-subtitle {

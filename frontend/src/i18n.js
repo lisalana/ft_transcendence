@@ -1,4 +1,4 @@
-// Système de traduction i18n
+// Systeme de traduction i18n
 const translations = {
   fr: {
     nav: {
@@ -130,7 +130,7 @@ const translations = {
       pause: {
         title: "PAUSED",
         hint: "Press ESC to resume",
-        resume: "Resume Game",
+        resume: "Continue",
         settings: "Settings",
         home: "Back to Home",
         settingsTitle: "Game Settings",
@@ -238,7 +238,7 @@ function setLanguage(lang) {
   }
 }
 
-// Mettre à jour toutes les traductions de la page
+// Mettre e jour toutes les traductions de la page
 function updatePageTranslations() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
@@ -250,7 +250,7 @@ function updatePageTranslations() {
     el.placeholder = t(key);
   });
   
-  // Re-render les vues si nécessaire
+  // Re-render les vues si besoin
   if (window.location.hash === '#home' || window.location.hash === '') {
     Home.render();
   } else if (window.location.hash === '#game') {

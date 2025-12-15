@@ -5,47 +5,47 @@ const Header = {
             <!-- Skip link pour accessibilité -->
             <a href="#app" class="skip-link">Skip to main content</a>
             
-            <!-- Header avec langue et accessibilité -->
-            <header class="site-header">
-                <div class="header-content">
+            <!-- Header avec langue et accessibilité + Classes Tailwind -->
+            <header class="site-header fixed top-0 left-0 right-0 z-50">
+                <div class="header-content flex justify-between items-center">
                     <div class="header-left">
-                        <h1 class="site-logo">FT_TRANSCENDENCE</h1>
+                        <h1 class="site-logo text-2xl font-bold">FT_TRANSCENDENCE</h1>
                     </div>
                     
-                    <div class="header-right">
+                    <div class="header-right flex gap-3 items-center">
                         <!-- Sélecteur de langue -->
-                        <div class="language-selector">
-                            <button id="langBtn" class="header-btn" aria-label="Select language">
+                        <div class="language-selector relative">
+                            <button id="langBtn" class="header-btn px-4 py-2 rounded-lg hover:bg-opacity-80 transition-all" aria-label="Select language">
                                 <span id="currentLang">🇬🇧 EN</span>
                             </button>
-                            <div id="langMenu" class="dropdown-menu hidden">
-                                <button onclick="setLanguage('en')" class="dropdown-item">
+                            <div id="langMenu" class="dropdown-menu hidden absolute top-full right-0 mt-2 bg-slate-800 rounded-lg shadow-xl">
+                                <button onclick="setLanguage('en')" class="dropdown-item flex items-center gap-2 px-4 py-2 hover:bg-slate-700 transition-colors">
                                     <span class="flag">🇬🇧</span> English
                                 </button>
-                                <button onclick="setLanguage('fr')" class="dropdown-item">
+                                <button onclick="setLanguage('fr')" class="dropdown-item flex items-center gap-2 px-4 py-2 hover:bg-slate-700 transition-colors">
                                     <span class="flag">🇫🇷</span> Français
                                 </button>
-                                <button onclick="setLanguage('es')" class="dropdown-item">
+                                <button onclick="setLanguage('es')" class="dropdown-item flex items-center gap-2 px-4 py-2 hover:bg-slate-700 transition-colors">
                                     <span class="flag">🇪🇸</span> Español
                                 </button>
                             </div>
                         </div>
                         
                         <!-- Bouton accessibilité -->
-                        <button id="a11yBtn" class="header-btn" aria-label="Accessibility options">
+                        <button id="a11yBtn" class="header-btn px-4 py-2 rounded-lg hover:bg-opacity-80 transition-all text-xl" aria-label="Accessibility options">
                             ♿
                         </button>
-                        <div id="a11yMenu" class="dropdown-menu hidden">
-                            <button onclick="toggleHighContrast()" class="dropdown-item">
+                        <div id="a11yMenu" class="dropdown-menu hidden absolute top-full right-0 mt-2 bg-slate-800 rounded-lg shadow-xl">
+                            <button onclick="toggleHighContrast()" class="dropdown-item flex items-center gap-2 px-4 py-2 hover:bg-slate-700 transition-colors">
                                 <span>🎨</span> <span data-i18n="nav.highContrast">High Contrast</span>
                             </button>
-                            <button onclick="increaseFontSize()" class="dropdown-item">
+                            <button onclick="increaseFontSize()" class="dropdown-item flex items-center gap-2 px-4 py-2 hover:bg-slate-700 transition-colors">
                                 <span>🔍+</span> <span>Increase Text Size</span>
                             </button>
-                            <button onclick="decreaseFontSize()" class="dropdown-item">
+                            <button onclick="decreaseFontSize()" class="dropdown-item flex items-center gap-2 px-4 py-2 hover:bg-slate-700 transition-colors">
                                 <span>🔍-</span> <span>Decrease Text Size</span>
                             </button>
-                            <button onclick="resetFontSize()" class="dropdown-item">
+                            <button onclick="resetFontSize()" class="dropdown-item flex items-center gap-2 px-4 py-2 hover:bg-slate-700 transition-colors">
                                 <span>↺</span> <span>Reset Text Size</span>
                             </button>
                         </div>
@@ -54,10 +54,10 @@ const Header = {
             </header>
         `;
         
-        // Injecter le header au début du body
+        // Injecter le header au debut du body
         document.body.insertAdjacentHTML('afterbegin', headerHTML);
         
-        // Initialiser les événements
+        // Initialiser les events
         this.initEvents();
     },
     
@@ -91,7 +91,7 @@ const Header = {
             a11yMenu?.classList.add('hidden');
         });
         
-        // Mettre à jour le drapeau actuel
+        // Mettre a jour le drapeau actuel
         this.updateCurrentLanguage();
     },
     
@@ -108,7 +108,7 @@ const Header = {
     }
 };
 
-// ===== FONCTIONS D'ACCESSIBILITÉ =====
+// ===== FONCTIONS D'ACCESSIBILITE =====
 let fontSizeMultiplier = 1.0;
 
 // Toggle accessibility menu
@@ -165,7 +165,7 @@ function applyFontSize() {
     document.documentElement.style.fontSize = (16 * fontSizeMultiplier) + 'px';
 }
 
-// Charger les préférences d'accessibilité au démarrage
+// Charger les preferences d'accessibilite au démarrage
 function loadAccessibilityPreferences() {
     // High contrast
     const highContrast = localStorage.getItem('highContrast') === 'true';

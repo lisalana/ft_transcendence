@@ -1,4 +1,4 @@
-// Router - Gère la navigation entre les vues
+// Router - Gere la navigation entre les vues
 const Router = {
     routes: {
         'home': Home,
