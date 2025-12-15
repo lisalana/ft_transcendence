@@ -7,16 +7,21 @@ export type GoogleUserData = {
     picture: string;
 }
 
-export default abstract class OAuthService {
-    // can be cool to do this decorator @get('/auth/connect')
+export type GitHubUserData = {
+    id: number;
+    login: string;
+    email: string;
+    name: string;
+    avatar_url: string;
+}
 
-    public static generate_state(): string
-    {
+export default abstract class OAuthService {
+    // ===== GOOGLE OAuth =====
+    public static generate_state(): string {
         return crypto.randomBytes(32).toString('hex');
     }
 
-    public static generate_google_link(state: string)
-    {
+    public static generate_google_link(state: string) {
         const params = new URLSearchParams({
             client_id: process.env.GOOGLE_OAUTH_CLIENT_ID || '',
             redirect_uri: process.env.GOOGLE_OAUTH_REDIRECT_URI || '',
@@ -43,11 +48,11 @@ export default abstract class OAuthService {
                 grant_type: 'authorization_code',
             }).toString(),
         });
-        
+
         if (!tokenResponse.ok) {
             throw new Error('Failed to exchange code for token');
         }
-        
+
         const tokenData = await tokenResponse.json() as { access_token: string };
         return tokenData.access_token;
     }
@@ -57,13 +62,84 @@ export default abstract class OAuthService {
             headers: {
                 Authorization: `Bearer ${access_token}`,
             },
-        })
+        });
+
         if (!userResponse.ok) {
             throw new Error('Failed to fetch user info');
         }
-        
+
         const userData = await userResponse.json() as GoogleUserData;
         return userData;
     }
 
+    // ===== GITHUB OAuth =====
+    public static generate_github_link(state: string) {
+        const params = new URLSearchParams({
+            client_id: process.env.GITHUB_OAUTH_CLIENT_ID || '',
+            redirect_uri: process.env.GITHUB_OAUTH_REDIRECT_URI || '',
+            scope: 'read:user user:email',
+            state: state,
+        });
+        const authUrl = `https://github.com/login/oauth/authorize?${params.toString()}`;
+        return authUrl;
+    }
+
+    public static async get_github_token(code: string): Promise<string> {
+        const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                client_id: process.env.GITHUB_OAUTH_CLIENT_ID || '',
+                client_secret: process.env.GITHUB_OAUTH_CLIENT_SECRET || '',
+                code: code,
+                redirect_uri: process.env.GITHUB_OAUTH_REDIRECT_URI || '',
+            }),
+        });
+
+        if (!tokenResponse.ok) {
+            throw new Error('Failed to exchange code for token');
+        }
+
+        const tokenData = await tokenResponse.json() as { access_token: string };
+        return tokenData.access_token;
+    }
+
+    public static async get_github_userinfo(access_token: string): Promise<GitHubUserData> {
+        // Get user profile
+        const userResponse = await fetch('https://api.github.com/user', {
+            headers: {
+                Authorization: `Bearer ${access_token}`,
+                'Accept': 'application/json',
+            },
+        });
+
+        if (!userResponse.ok) {
+            throw new Error('Failed to fetch user info');
+        }
+
+        const userData = await userResponse.json() as GitHubUserData;
+
+        // Get user email if not public
+        if (!userData.email) {
+            const emailResponse = await fetch('https://api.github.com/user/emails', {
+                headers: {
+                    Authorization: `Bearer ${access_token}`,
+                    'Accept': 'application/json',
+                },
+            });
+
+            if (emailResponse.ok) {
+                const emails = await emailResponse.json() as Array<{ email: string; primary: boolean; verified: boolean }>;
+                const primaryEmail = emails.find(e => e.primary && e.verified);
+                if (primaryEmail) {
+                    userData.email = primaryEmail.email;
+                }
+            }
+        }
+
+        return userData;
+    }
 }

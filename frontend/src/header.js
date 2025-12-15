@@ -170,7 +170,7 @@ const Header = {
             githubLoginBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                alert('GitHub OAuth - Coming soon!');
+                window.location.replace('https://localhost:8443/api/auth/github/login');
             });
         }
 

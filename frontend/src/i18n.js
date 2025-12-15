@@ -13,7 +13,7 @@ const translations = {
     home: {
       title: "ft_transcendence",
       subtitle: "L'Expérience Pong Ultime",
-      tagline: "• Jouer & rivaliser •",
+      tagline: "• Joue & rivalise •",
       playGame: {
         badge: "JOUER MAINTENANT",
         title: "Jouer",
