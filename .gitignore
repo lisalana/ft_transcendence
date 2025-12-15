@@ -30,4 +30,4 @@ Thumbs.db
 *.pid
 
 # SQLite database files
-backend/data
+backend/databackend/.env
