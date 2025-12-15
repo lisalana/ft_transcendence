@@ -4,7 +4,11 @@ const translations = {
     nav: {
       language: "Langue",
       accessibility: "Accessibilité",
-      highContrast: "Contraste élevé"
+      signIn: 'Se connecter',
+      highContrast: "Contraste élevé",
+      increaseFontSize: ' agrandir le Texte',
+      decreaseFontSize: 'Diminuer le Texte',
+      resetFontSize: 'Reset la taille du Texte'
     },
     home: {
       title: "ft_transcendence",
@@ -75,7 +79,11 @@ const translations = {
     nav: {
       language: "Language",
       accessibility: "Accessibility",
-      highContrast: "High Contrast"
+      signIn: 'Sign in',
+      highContrast: "High Contrast",
+      increaseFontSize: 'Increase Text',
+      decreaseFontSize: 'Decrease Text',
+      resetFontSize: 'Reset Text Size'
     },
     home: {
       title: "ft_transcendence",
@@ -146,7 +154,11 @@ const translations = {
     nav: {
       language: "Idioma",
       accessibility: "Accesibilidad",
-      highContrast: "Alto Contraste"
+      signIn: 'Iniciar sesión',
+      highContrast: "Alto Contraste",
+      increaseFontSize: 'Aumentar el Texto',
+      decreaseFontSize: 'Disminuir el Texto',
+      resetFontSize: 'Restablecer el Texto'
     },
     home: {
       title: "ft_transcendence",
