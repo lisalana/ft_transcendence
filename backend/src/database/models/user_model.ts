@@ -2,7 +2,7 @@ import Database from 'better-sqlite3';
 import { DatabaseManager } from '../database';
 
 export interface User {
-    id? : number; //string pour hash id  ? 
+    id? : number;
     username: string;
     email: string;
     password_hash: string;
@@ -13,7 +13,7 @@ export interface User {
 }
 
 export interface UserStats {
-    user_id: number; //string pour hash id  ? 
+    user_id: number;
     games_played: number;
     games_won: number;
     games_lost: number;
@@ -73,3 +73,45 @@ export class UserModel {
         return statement.get(userId) as UserStats | undefined;
     }
 }
+
+// on rend anonyme dans users et dans leaderboard
+anonymize(userId: number): boolean {
+    const user = this.findById(userId);
+    if (!user) return false;
+    
+    const anonymizedUsername = `deleted_user_${userId}`;
+    const anonymizedEmail = `deleted_${userId}@anonymized.local`;
+    
+    const statement = this.db.prepare(`
+        UPDATE users 
+        SET username = ?,
+            email = ?,
+            access_token = '',
+            avatar_url = NULL,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+    `);
+    statement.run(anonymizedUsername, anonymizedEmail, userId);
+    
+    const leaderboardStatement = this.db.prepare(`
+        UPDATE leaderboard 
+        SET player_name = ?
+        WHERE player_name = ?
+    `);
+    leaderboardStatement.run(anonymizedUsername, user.username);
+    
+    return true;
+}
+
+deleteAccount(userId: number): boolean {
+    const statement = this.db.prepare(`DELETE FROM users WHERE id = ?`);
+    const result = statement.run(userId);
+    return result.changes > 0;
+}
+
+exportUserData(userId : number) any {
+    const user = this.findById(userId);
+    if (!user)
+        return null;
+}
+
