@@ -75,8 +75,8 @@ const Home = {
                     </div>
 
                     <!-- Settings Card -->
-                    <div class="card disabled">
-                        <span class="card-badge coming-soon" data-i18n="home.settings.badge">${t('home.settings.badge')}</span>
+                    <div class="card" onclick="Router.navigate('settings')" tabindex="0" role="button" aria-label="${t('home.settings.title')}" onkeypress="if(event.key==='Enter') Router.navigate('settings')">
+                        <span class="card-badge" data-i18n="home.settings.badge">${t('home.settings.badge')}</span>
                         <svg class="card-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <circle cx="50" cy="50" r="20" stroke="url(#gradient4)" stroke-width="3" fill="rgba(76, 175, 80, 0.1)"/>
                             <circle cx="50" cy="50" r="10" fill="url(#gradient4)"/>

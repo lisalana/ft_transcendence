@@ -3,7 +3,8 @@ const Router = {
     routes: {
         'home': Home,
         'game': Game,
-        'leaderboard': Leaderboard
+        'leaderboard': Leaderboard,
+        'settings': Settings
     },
 
     init() {
