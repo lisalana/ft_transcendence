@@ -63,52 +63,19 @@ const Settings = {
             </div>
         `;
 
-        // Initialiser les event listeners
-        this.initEventListeners();
+        // ⚠️ IMPORTANT : Attacher les event listeners APRÈS le rendu
+        setTimeout(() => this.initEventListeners(), 0);
     },
 
     initEventListeners() {
+        console.log('🔧 Initializing event listeners...');
+        
         // 📥 Export des données
-        document.getElementById('export-data-btn')?.addEventListener('click', async () => {
-            try {
-                const response = await fetch('/api/users/me/export', {
-                    credentials: 'include'
-                });
-                
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `mes_donnees_${Date.now()}.json`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-                    
-                    alert('✅ Données exportées avec succès !');
-                } else {
-                    const data = await response.json();
-                    alert('❌ ' + (data.error || 'Erreur lors de l\'export'));
-                }
-            } catch (error) {
-                console.error('Erreur export:', error);
-                alert('❌ Erreur lors de l\'export');
-            }
-        });
-
-        // 🎭 Anonymisation
-        document.getElementById('anonymize-btn')?.addEventListener('click', async () => {
-            // Proposition d'export avant anonymisation
-            const wantExport = confirm(
-                '💡 RECOMMANDATION : Exporter vos données avant anonymisation ?\n\n' +
-                '• Une fois anonymisé, vous ne pourrez plus récupérer vos informations\n' +
-                '• L\'export contient toutes vos données personnelles\n\n' +
-                'Voulez-vous exporter vos données maintenant ?'
-            );
-            
-            // Si l'utilisateur veut exporter
-            if (wantExport) {
+        const exportBtn = document.getElementById('export-data-btn');
+        if (exportBtn) {
+            console.log('✅ Export button found');
+            exportBtn.addEventListener('click', async () => {
+                console.log('🖱️ Export button clicked');
                 try {
                     const response = await fetch('/api/users/me/export', {
                         credentials: 'include'
@@ -119,117 +86,135 @@ const Settings = {
                         const url = window.URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = url;
-                        a.download = `mes_donnees_avant_anonymisation_${Date.now()}.json`;
+                        a.download = `mes_donnees_${Date.now()}.json`;
                         document.body.appendChild(a);
                         a.click();
                         document.body.removeChild(a);
                         window.URL.revokeObjectURL(url);
                         
-                        alert('✅ Données exportées avec succès !\n\nVous pouvez maintenant procéder à l\'anonymisation.');
+                        alert('✅ Données exportées avec succès !');
                     } else {
-                        alert('❌ Erreur lors de l\'export. Anonymisation annulée.');
-                        return;
+                        const data = await response.json();
+                        alert('❌ ' + (data.error || 'Erreur lors de l\'export'));
                     }
                 } catch (error) {
                     console.error('Erreur export:', error);
-                    alert('❌ Erreur lors de l\'export. Anonymisation annulée.');
-                    return;
+                    alert('❌ Erreur lors de l\'export');
                 }
-            }
+            });
+        } else {
+            console.error('❌ Export button not found');
+        }
+
+        // 🎭 Anonymisation
+        const anonymizeBtn = document.getElementById('anonymize-btn');
+if (anonymizeBtn) {
+    console.log('✅ Anonymize button found');
+    anonymizeBtn.addEventListener('click', async () => {
+        console.log('🖱️ Anonymize button clicked');
+        
+        try {
+            // Lancement anonymisation
+            const response = await fetch('/api/users/me/anonymize', {
+                method: 'POST',
+                credentials: 'include'
+            });
             
-            // Confirmation d'anonymisation
-            const confirmed = confirm(
-                '⚠️ ATTENTION : Voulez-vous vraiment anonymiser votre compte ?\n\n' +
-                '• Vos informations personnelles seront effacées\n' +
-                '• Vos statistiques seront préservées\n' +
-                '• Cette action est IRRÉVERSIBLE\n\n' +
-                'Continuer ?'
-            );
+            console.log('📡 Réponse reçue:', response.status);
+            const data = await response.json();
+            console.log('📦 Data:', data);
             
-            if (!confirmed) return;
-            
-            try {
-                const response = await fetch('/api/users/me/anonymize', {
-                    method: 'POST',
-                    credentials: 'include'
-                });
+            if (data.success) {
+                console.log('✅ Anonymisation réussie, export des données anonymisées...');
                 
-                const data = await response.json();
-                
-                if (data.success) {
-                    try {
-                        const verifyResponse = await fetch('/api/users/me/export', {
-                            credentials: 'include'
-                        });
-                        
-                        if (verifyResponse.ok) {
-                            const blob = await verifyResponse.blob();
-                            const url = window.URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `donnees_apres_anonymisation_${Date.now()}.json`;
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            window.URL.revokeObjectURL(url);
-                        }
-                    } catch (error) {
-                        console.error('Erreur export vérification:', error);
+                // Export automatique des données anonymisées AVANT déconnexion
+                try {
+                    const verifyResponse = await fetch('/api/users/me/export', {
+                        credentials: 'include'
+                    });
+                    
+                    if (verifyResponse.ok) {
+                        const blob = await verifyResponse.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `donnees_anonymisees_${Date.now()}.json`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                        console.log('✅ Export des données anonymisées effectué');
                     }
-                    
-                    alert('✅ Compte anonymisé avec succès.\n\n📥 Vos données anonymisées ont été téléchargées pour vérification.\n\nVous allez être déconnecté.');
-                    
-                    // Délai pour laisser le temps au téléchargement
-                    setTimeout(() => {
-                        window.location.href = '/';
-                    }, 1000);
-                } else {
-                    alert('❌ ' + (data.error || 'Erreur lors de l\'anonymisation'));
+                } catch (error) {
+                    console.error('Erreur export vérification:', error);
                 }
-            } catch (error) {
-                console.error('Erreur anonymisation:', error);
-                alert('❌ Erreur lors de l\'anonymisation');
+                
+                // Attendre 1.5s pour que le téléchargement se lance, puis déconnecter
+                setTimeout(() => {
+                    console.log('🚪 Déconnexion...');
+                    window.location.href = '/';
+                }, 1500);
+                
+            } else {
+                alert('❌ Erreur: ' + (data.error || 'Erreur lors de l\'anonymisation'));
             }
-        });
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('❌ Erreur lors de l\'anonymisation');
+        }
+    });
+} else {
+    console.error('❌ Anonymize button not found');
+}
 
         // 🗑️ Suppression
-        document.getElementById('delete-account-btn')?.addEventListener('click', async () => {
-            const confirmed1 = confirm(
-                '⚠️ DANGER : Voulez-vous vraiment supprimer DÉFINITIVEMENT votre compte ?\n\n' +
-                '• Toutes vos données seront EFFACÉES\n' +
-                '• Toutes vos statistiques seront PERDUES\n' +
-                '• Cette action est IRRÉVERSIBLE\n\n' +
-                'Continuer ?'
-            );
-            
-            if (!confirmed1) return;
-            
-            const confirmed2 = confirm(
-                '⚠️ DERNIÈRE CONFIRMATION :\n\n' +
-                'Êtes-vous ABSOLUMENT SÛR de vouloir supprimer votre compte ?\n\n' +
-                'Cliquez sur OK pour confirmer.'
-            );
-            
-            if (!confirmed2) return;
-            
-            try {
-                const response = await fetch('/api/users/me', {
-                    method: 'DELETE',
-                    credentials: 'include'
-                });
+        const deleteBtn = document.getElementById('delete-account-btn');
+        if (deleteBtn) {
+            console.log('✅ Delete button found');
+            deleteBtn.addEventListener('click', async () => {
+                console.log('🖱️ Delete button clicked');
                 
-                const data = await response.json();
+                const confirmed1 = confirm(
+                    '⚠️ DANGER : Voulez-vous vraiment supprimer DÉFINITIVEMENT votre compte ?\n\n' +
+                    '• Toutes vos données seront EFFACÉES\n' +
+                    '• Toutes vos statistiques seront PERDUES\n' +
+                    '• Cette action est IRRÉVERSIBLE\n\n' +
+                    'Continuer ?'
+                );
                 
-                if (data.success) {
-                    alert('✅ Compte supprimé avec succès.\nAu revoir !');
-                    window.location.href = '/';
-                } else {
-                    alert('❌ ' + (data.error || 'Erreur lors de la suppression'));
+                if (!confirmed1) return;
+                
+                const confirmed2 = confirm(
+                    '⚠️ DERNIÈRE CONFIRMATION :\n\n' +
+                    'Êtes-vous ABSOLUMENT SÛR de vouloir supprimer votre compte ?\n\n' +
+                    'Cliquez sur OK pour confirmer.'
+                );
+                
+                if (!confirmed2) return;
+                
+                try {
+                    const response = await fetch('/api/users/me', {
+                        method: 'DELETE',
+                        credentials: 'include'
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        alert('✅ Compte supprimé avec succès.\nAu revoir !');
+                        window.location.href = '/';
+                    } else {
+                        alert('❌ ' + (data.error || 'Erreur lors de la suppression'));
+                    }
+                } catch (error) {
+                    console.error('Erreur suppression:', error);
+                    alert('❌ Erreur lors de la suppression');
                 }
-            } catch (error) {
-                console.error('Erreur suppression:', error);
-                alert('❌ Erreur lors de la suppression');
-            }
-        });
+            });
+        } else {
+            console.error('❌ Delete button not found');
+        }
+        
+        console.log('✅ Event listeners initialized');
     }
 };
