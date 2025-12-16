@@ -72,46 +72,68 @@ export class UserModel {
         const statement = this.db.prepare(`SELECT * FROM user_stats WHERE user_id = ?`);
         return statement.get(userId) as UserStats | undefined;
     }
+
+    // on rend anonyme dans users et dans leaderboard
+    anonymize(userId: number): boolean {
+        const user = this.findById(userId);
+        if (!user) return false;
+        
+        const anonymizedUsername = `deleted_user_${userId}`;
+        const anonymizedEmail = `deleted_${userId}@anonymized.local`;
+        
+        const statement = this.db.prepare(`
+            UPDATE users 
+            SET username = ?,
+                email = ?,
+                access_token = '',
+                avatar_url = NULL,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `);
+        statement.run(anonymizedUsername, anonymizedEmail, userId);
+        
+        const leaderboardStatement = this.db.prepare(`
+            UPDATE leaderboard 
+            SET player_name = ?
+            WHERE player_name = ?
+        `);
+        leaderboardStatement.run(anonymizedUsername, user.username);
+        
+        return true;
+    }
+
+    deleteAccount(userId: number): boolean {
+        const statement = this.db.prepare(`DELETE FROM users WHERE id = ?`);
+        const result = statement.run(userId);
+        return result.changes > 0;
+    }
+
+    exportUserData(userId : number): any {
+        const user = this.findById(userId);
+        if (!user)
+            return null;
+
+        const stats = this.getStats(userId);
+
+        return {
+            personal_data: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                avatar_url: user.avatar_url,
+                created_at: user.created_at,
+                updated_at: user.updated_at,
+            },
+            statistics: stats,
+            export_date: new Date().toISOString()
+        };
+    }
+
+    isAnonymized(userId: number): boolean {
+        const user = this.findById(userId);
+        return user ? user.username.startsWith('deleted_user_') : false;
+    }
 }
 
-// on rend anonyme dans users et dans leaderboard
-anonymize(userId: number): boolean {
-    const user = this.findById(userId);
-    if (!user) return false;
-    
-    const anonymizedUsername = `deleted_user_${userId}`;
-    const anonymizedEmail = `deleted_${userId}@anonymized.local`;
-    
-    const statement = this.db.prepare(`
-        UPDATE users 
-        SET username = ?,
-            email = ?,
-            access_token = '',
-            avatar_url = NULL,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = ?
-    `);
-    statement.run(anonymizedUsername, anonymizedEmail, userId);
-    
-    const leaderboardStatement = this.db.prepare(`
-        UPDATE leaderboard 
-        SET player_name = ?
-        WHERE player_name = ?
-    `);
-    leaderboardStatement.run(anonymizedUsername, user.username);
-    
-    return true;
-}
 
-deleteAccount(userId: number): boolean {
-    const statement = this.db.prepare(`DELETE FROM users WHERE id = ?`);
-    const result = statement.run(userId);
-    return result.changes > 0;
-}
-
-exportUserData(userId : number) any {
-    const user = this.findById(userId);
-    if (!user)
-        return null;
-}
 
