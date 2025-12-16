@@ -282,11 +282,17 @@ function setLanguage(lang) {
   if (translations[lang]) {
     currentLanguage = lang;
     localStorage.setItem('language', lang);
-    updatePageTranslations();
+    
+    // Si on est sur leaderboard, le re-render manuellement
+    if (window.location.hash === '#leaderboard') {
+      Leaderboard.render();
+    } else {
+      updatePageTranslations();
+    }
   }
 }
 
-// Mettre e jour toutes les traductions de la page
+// Mettre à jour toutes les traductions de la page
 function updatePageTranslations() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
@@ -298,10 +304,23 @@ function updatePageTranslations() {
     el.placeholder = t(key);
   });
   
-  // Re-render les vues si besoin
-  if (window.location.hash === '#home' || window.location.hash === '') {
+  // Mettre à jour le flag de langue dans le header
+  const currentLangElement = document.getElementById('currentLang');
+  if (currentLangElement) {
+    const flags = { 
+      en: '🇬🇧 EN', 
+      fr: '🇫🇷 FR', 
+      es: '🇪🇸 ES' 
+    };
+    currentLangElement.textContent = flags[currentLanguage] || '🇬🇧 EN';
+  }
+  
+  // Re-render SEULEMENT home et game (PAS leaderboard)
+  const currentHash = window.location.hash;
+  if (currentHash === '#home' || currentHash === '') {
     Home.render();
-  } else if (window.location.hash === '#game') {
+  } else if (currentHash === '#game') {
     Game.render();
   }
+  // Leaderboard n'a PAS besoin de re-render, juste updatePageTranslations()
 }
