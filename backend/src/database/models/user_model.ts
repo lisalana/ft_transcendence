@@ -247,6 +247,6 @@ export class UserModel {
 
     isAnonymized(userId: number): boolean {
         const user = this.findById(userId);
-        return user ? user.username.startsWith('deleted_user_') : false;
+        return user ? user.username.startsWith('deleted_user_') : false; 
     }
 }
