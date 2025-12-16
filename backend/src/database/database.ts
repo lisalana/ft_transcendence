@@ -36,6 +36,9 @@ export class DatabaseManager {
         email TEXT UNIQUE NOT NULL,
         access_token TEXT NOT NULL,
         avatar_url TEXT,
+        two_factor_secret TEXT,
+        two_factor_enabled INTEGER DEFAULT 0,
+        two_factor_backup_codes TEXT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
@@ -48,6 +51,17 @@ export class DatabaseManager {
         games_won INTEGER DEFAULT 0,
         games_lost INTEGER DEFAULT 0,
         total_score INTEGER DEFAULT 0,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+      )
+    `);
+
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS refresh_tokens (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        token_hash TEXT UNIQUE NOT NULL,
+        expires_at DATETIME NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
       )
     `);
