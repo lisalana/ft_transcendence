@@ -1376,7 +1376,6 @@ canvas {
     font-size: 0.9rem;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .setting-card {
         flex-direction: column;
