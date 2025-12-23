@@ -1334,3 +1334,157 @@ canvas {
     font-weight: bold;
     margin-right: 8px;
 }
+
+/* ===========================
+   2FA MODAL STYLES
+   =========================== */
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(10px);
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: rgba(20, 20, 40, 0.95);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modal-content h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+}
+
+.modal-content p {
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 15px;
+    line-height: 1.6;
+}
+
+.modal-content .hint {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+    margin-top: 10px;
+}
+
+/* QR Code Container */
+.qr-container {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px auto;
+    width: fit-content;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Input Code */
+.input-code {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.5rem;
+    text-align: center;
+    letter-spacing: 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-radius: 10px;
+    color: white;
+    margin: 20px 0;
+    font-family: monospace;
+}
+
+.input-code:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Modal Buttons */
+.modal-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.modal-buttons .setting-btn {
+    width: 100%;
+}
+
+/* Backup Codes */
+.backup-codes-warning {
+    background: rgba(255, 152, 0, 0.2);
+    border: 2px solid rgba(255, 152, 0, 0.5);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.backup-codes-warning p {
+    color: #ff9800;
+    font-weight: bold;
+    margin: 0;
+}
+
+.backup-codes {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.backup-code {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    font-family: monospace;
+    font-size: 1.1rem;
+    color: white;
+    letter-spacing: 0.1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .modal-content {
+        padding: 30px 20px;
+    }
+    
+    .backup-codes {
+        grid-template-columns: 1fr;
+    }
+    
+    .input-code {
+        font-size: 1.2rem;
+        letter-spacing: 0.3rem;
+    }
+}

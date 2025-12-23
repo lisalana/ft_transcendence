@@ -9,7 +9,6 @@
     <script>
         // Configuration Tailwind
         tailwind = { corePlugins: { preflight: false } };
-
         //warning Tailwind CDN (mask)
         const originalWarn = console.warn;
         console.warn = function(...args) {
@@ -27,6 +26,27 @@
     
     <!-- Main Container-->
     <div id="app" class="container"></div>
+    
+    <!-- 2FA Login Modal -->
+    <div id="twoFactorLoginModal" class="modal hidden">
+        <div class="modal-content">
+            <h2>🔐 2FA Code Required</h2>
+            <p>Enter the code from your authenticator app</p>
+            
+            <input type="text" id="loginTwoFactorCode" class="input-code" maxlength="6" placeholder="000000">
+            
+            <div class="modal-buttons">
+                <button id="verify2FALoginBtn" class="setting-btn">Verify</button>
+                <button onclick="close2FALoginModal()" class="setting-btn">Cancel</button>
+            </div>
+            
+            <p style="text-align: center; margin-top: 15px;">
+                <a href="#" onclick="use2FABackupCode(); return false;" style="color: #667eea; font-size: 0.9rem;">
+                    Use a backup code
+                </a>
+            </p>
+        </div>
+    </div>
     
     <!-- Scripts -->
     <script src="./i18n.js"></script>

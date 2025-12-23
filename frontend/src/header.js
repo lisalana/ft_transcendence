@@ -80,8 +80,8 @@ const Header = {
                             
                             <!-- Menu pour utilisateur CONNECTÉ -->
                             <div id="authMenuUser" class="hidden">
-                                <button onclick="Router.navigate('leaderboard')" class="dropdown-item flex items-center gap-2 px-4 py-2 hover:bg-slate-700 transition-colors">
-                                    <span>🏆</span> <span>Leaderboard</span>
+                                <button onclick="Router.navigate('settings')" class="dropdown-item flex items-center gap-2 px-4 py-2 hover:bg-slate-700 transition-colors">
+                                    <span>⚙️</span> <span>Settings</span>
                                 </button>
                                 <button id="logoutBtn" class="dropdown-item flex items-center gap-2 px-4 py-2 hover:bg-slate-700 transition-colors">
                                     <span>🚪</span> <span>Logout</span>
@@ -160,7 +160,21 @@ const Header = {
             googleLoginBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                window.location.href = 'https://localhost:8443/api/auth/login';
+
+                // Show loading indicator
+                const authMenu = document.getElementById('authMenu');
+                authMenu.classList.add('hidden');
+
+                // Open in popup instead of redirect
+                const popup = window.open(
+                    'https://localhost:8443/api/auth/login',
+                    'Google Login',
+                    'width=500,height=600,left=' + (screen.width + 100) + ',top=0'
+                );
+                // Optional: Check if popup was blocked
+                if (!popup) {
+                    alert('⚠️ Popup blocked! Please allow popups for this site.');
+                }
             });
         }
 
@@ -170,7 +184,13 @@ const Header = {
             githubLoginBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                window.location.href = 'https://localhost:8443/api/auth/github/login';
+
+                // Open in popup instead of redirect
+                const popup = window.open(
+                    'https://localhost:8443/api/auth/github/login',
+                    'GitHub Login',
+                    'width=500,height=600,left=' + (screen.width + 100) + ',top=0'
+                );
             });
         }
 
@@ -364,5 +384,89 @@ window.addEventListener('message', (event) => {
         localStorage.setItem('refreshToken', event.data.tokens.refreshToken);
         window.currentUser = event.data.user;
         updateAuthButton();
+        window.location.reload();
+    } else if (event.data.type === 'auth_2fa_required') {
+        console.log('⚠️ 2FA required');
+        show2FALoginModal(event.data.tempToken);
     }
 });
+
+// ===== 2FA LOGIN MODAL =====
+let tempTwoFactorToken = null;
+
+function show2FALoginModal(tempToken) {
+    tempTwoFactorToken = tempToken;
+    document.getElementById('twoFactorLoginModal').classList.remove('hidden');
+    document.getElementById('loginTwoFactorCode').value = '';
+    document.getElementById('loginTwoFactorCode').focus();
+}
+
+function close2FALoginModal() {
+    document.getElementById('twoFactorLoginModal').classList.add('hidden');
+    tempTwoFactorToken = null;
+}
+
+async function verify2FALogin() {
+    const code = document.getElementById('loginTwoFactorCode').value;
+    
+    if (code.length !== 6) {
+        alert('Please enter a 6-digit code');
+        return;
+    }
+    
+    try {
+        const response = await fetch('https://localhost:8443/api/auth/2fa/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                tempToken: tempTwoFactorToken,
+                code: code
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            localStorage.setItem('accessToken', data.data.accessToken);
+            localStorage.setItem('refreshToken', data.data.refreshToken);
+            window.currentUser = data.data.user;
+            
+            close2FALoginModal();
+            updateAuthButton();
+            
+            if (data.data.usedBackupCode) {
+                alert('⚠️ Backup code used! Please generate new backup codes in Settings.');
+            }
+            
+            window.location.reload();
+        } else {
+            alert('❌ Invalid code. Please try again.');
+        }
+    } catch (error) {
+        console.error('2FA error:', error);
+        alert('❌ Error. Please try again.');
+    }
+}
+
+function use2FABackupCode() {
+    const code = prompt('Enter your backup code:');
+    if (code) {
+        document.getElementById('loginTwoFactorCode').value = code;
+        verify2FALogin();
+    }
+}
+
+// Attach 2FA event listeners when DOM is ready
+setTimeout(() => {
+    const verify2FABtn = document.getElementById('verify2FALoginBtn');
+    if (verify2FABtn) {
+        verify2FABtn.addEventListener('click', verify2FALogin);
+    }
+    
+    const codeInput = document.getElementById('loginTwoFactorCode');
+    if (codeInput) {
+        codeInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') verify2FALogin();
+        });
+    }
+}, 100);
