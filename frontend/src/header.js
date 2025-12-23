@@ -160,17 +160,17 @@ const Header = {
             googleLoginBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                window.location.replace('https://localhost:8443/api/auth/login');
+                window.location.href = 'https://localhost:8443/api/auth/login';
             });
         }
 
-        // GitHub login button (pour plus tard)
+        // GitHub login button
         const githubLoginBtn = document.getElementById('githubLoginBtn');
         if (githubLoginBtn) {
             githubLoginBtn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                window.location.replace('https://localhost:8443/api/auth/github/login');
+                window.location.href = 'https://localhost:8443/api/auth/github/login';
             });
         }
 
@@ -272,20 +272,47 @@ function loadAccessibilityPreferences() {
     }
 }
 
-// ===== AUTHENTIFICATION =====
+// ===== AUTHENTIFICATION JWT =====
 window.currentUser = null;
 
 async function loadCurrentUser() {
     try {
-        const response = await fetch('https://localhost:8443/api/auth/me');
+        const accessToken = localStorage.getItem('accessToken');
+        
+        if (!accessToken) {
+            window.currentUser = null;
+            updateAuthButton();
+            return;
+        }
+        
+        const response = await fetch('https://localhost:8443/api/auth/me', {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+        
+        if (response.status === 401) {
+            // Token expired, clear auth
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            window.currentUser = null;
+            updateAuthButton();
+            return;
+        }
+        
         const data = await response.json();
         
-        if (data.success && data.authenticated) {
+        if (data.authenticated && data.user) {
             window.currentUser = data.user;
-            updateAuthButton();
+        } else {
+            window.currentUser = null;
         }
+        
+        updateAuthButton();
     } catch (error) {
         console.error('Error loading user:', error);
+        window.currentUser = null;
+        updateAuthButton();
     }
 }
 
@@ -312,8 +339,30 @@ function updateAuthButton() {
 }
 
 function logout() {
-    window.location.replace('https://localhost:8443/api/auth/logout');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    window.currentUser = null;
+    updateAuthButton();
+    
+    if (window.Router) {
+        window.Router.navigate('home');
+    } else {
+        window.location.href = '/';
+    }
 }
 
-// Charger automatiquement
+// Charger les préférences d'accessibilité
 loadAccessibilityPreferences();
+
+// Listen for OAuth success (postMessage from callback page)
+window.addEventListener('message', (event) => {
+    if (event.origin !== window.location.origin) return;
+    
+    if (event.data.type === 'auth_success') {
+        console.log('✅ OAuth success, storing tokens');
+        localStorage.setItem('accessToken', event.data.tokens.accessToken);
+        localStorage.setItem('refreshToken', event.data.tokens.refreshToken);
+        window.currentUser = event.data.user;
+        updateAuthButton();
+    }
+});

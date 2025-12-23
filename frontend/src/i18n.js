@@ -84,8 +84,30 @@ const translations = {
         loading: "Chargement du classement...",
         error: "Échec du chargement du classement",
         retry: "Réessayer"
-    }
-  },
+    },
+    settingsPage: {
+        title: "⚙️ Parametres du Compte",
+        subtitle: "Gerer vos donnees personnelles et confidentialite",
+        backBtn: "← Retour à l'Accueil",
+        downloadTitle: "Telecharger Mes Donnees",
+        downloadDesc: "Obtenir une copie de toutes vos informations personnelles",
+        downloadBtn: "Telecharger",
+        downloadProgress: "Telechargement...",
+        downloadSuccess: "✅ Donnees telechargees avec succes !",
+        downloadError: "❌ Erreur lors du telechargement. Reessayez.",
+        deleteTitle: "Supprimer le Compte",
+        deleteDesc: "Supprimer definitivement votre compte et toutes les donnees",
+        deleteBtn: "Supprimer",
+        deleteConfirm: "⚠️ SUPPRIMER LE COMPTE\n\nEtes-vous sur ? Cela supprimera definitivement :\n\n• Votre profil et statistiques\n• Tout votre historique de jeu\n• Tout ce qui est associe à votre compte\n\nCette action est irreversible.",
+        deleteSuccess: "✅ Compte supprime avec succes. Au revoir !",
+        deleteError: "❌ Erreur lors de la suppression. Reessayez.",
+        privacyTitle: "🔒 Votre Confidentialite",
+        privacyItem1: "Vos donnees sont stockees en toute securite sur nos serveurs",
+        privacyItem2: "Nous ne partageons jamais vos donnees avec des tiers",
+        privacyItem3: "Vous pouvez telecharger ou supprimer vos donnees a tout moment",
+        privacyItem4: "Conformite RGPD complete"
+      }
+    },
   
   en: {
     nav: {
@@ -171,8 +193,33 @@ const translations = {
         loading: "Loading leaderboard...",
         error: "Failed to load leaderboard",
         retry: "Retry"
+    },
+    settingsPage: {
+        title: "⚙️ Account Settings",
+        subtitle: "Manage your personal data and privacy",
+        backBtn: "← Back to Home",
+        
+        downloadTitle: "Download My Data",
+        downloadDesc: "Get a copy of all your personal information",
+        downloadBtn: "Download",
+        downloadProgress: "Downloading...",
+        downloadSuccess: "✅ Data downloaded successfully!",
+        downloadError: "❌ Error downloading data. Please try again.",
+        
+        deleteTitle: "Delete Account",
+        deleteDesc: "Permanently delete your account and all data",
+        deleteBtn: "Delete",
+        deleteConfirm: "⚠️ DELETE ACCOUNT\n\nAre you sure? This will permanently delete:\n\n• Your profile and stats\n• All your game history\n• Everything associated with your account\n\nThis action cannot be undone.",
+        deleteSuccess: "✅ Account deleted successfully. Goodbye!",
+        deleteError: "❌ Error deleting account. Please try again.",
+        
+        privacyTitle: "🔒 Your Privacy",
+        privacyItem1: "Your data is stored securely on our servers",
+        privacyItem2: "We never share your data with third parties",
+        privacyItem3: "You can download or delete your data anytime",
+        privacyItem4: "Full GDPR compliance"
     }
-  },
+},
   
   es: {
     nav: {
@@ -258,8 +305,33 @@ const translations = {
         loading: "Cargando clasificación...",
         error: "Error al cargar la clasificación",
         retry: "Reintentar"
+    },
+    settingsPage: {
+        title: "⚙️ Configuración de Cuenta",
+        subtitle: "Gestionar tus datos personales y privacidad",
+        backBtn: "← Volver al Inicio",
+
+        downloadTitle: "Descargar Mis Datos",
+        downloadDesc: "Obtener una copia de toda tu información personal",
+        downloadBtn: "Descargar",
+        downloadProgress: "Descargando...",
+        downloadSuccess: "✅ ¡Datos descargados con éxito!",
+        downloadError: "❌ Error al descargar datos. Inténtalo de nuevo.",
+
+        deleteTitle: "Eliminar Cuenta",
+        deleteDesc: "Eliminar permanentemente tu cuenta y todos los datos",
+        deleteBtn: "Eliminar",
+        deleteConfirm: "⚠️ ELIMINAR CUENTA\n\n¿Estás seguro? Esto eliminará permanentemente:\n\n• Tu perfil y estadísticas\n• Todo tu historial de juego\n• Todo lo asociado con tu cuenta\n\nEsta acción no se puede deshacer.",
+        deleteSuccess: "✅ Cuenta eliminada con éxito. ¡Adiós!",
+        deleteError: "❌ Error al eliminar cuenta. Inténtalo de nuevo.",
+
+        privacyTitle: "🔒 Tu Privacidad",
+        privacyItem1: "Tus datos se almacenan de forma segura en nuestros servidores",
+        privacyItem2: "Nunca compartimos tus datos con terceros",
+        privacyItem3: "Puedes descargar o eliminar tus datos en cualquier momento",
+        privacyItem4: "Cumplimiento total del RGPD"
+      }
     }
-  }
 };
 
 // Langue courante
