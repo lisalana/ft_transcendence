@@ -150,8 +150,8 @@ const Game = {
                             
                             <!-- Pause Overlay (disconnect) -->
                             <div id="pauseOverlay" class="hidden">
-                                <div class="pause-message" data-i18n="game.paused">${t('game.paused')}</div>
-                                <div class="pause-subtext" data-i18n="game.pausedSub">${t('game.pausedSub')}</div>
+                                <div class="pause-message" data-i18n="game.pause.title">${t('game.pause.title')}</div>
+                                <div class="pause-subtext" data-i18n="game.pause.sub">${t('game.pause.sub')}</div>
                             </div>
                         </div>
 
