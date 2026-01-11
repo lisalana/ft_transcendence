@@ -40,8 +40,12 @@ export class TwoFactorService {
     public static verifyToken(token: string, secret: string): boolean {
         try {
             const cleanToken = token.replace(/[\s-]/g, '');
-            return authenticator.verify({ token: cleanToken, secret });
+            console.log('Verifying token:', cleanToken, 'against secret:', secret);
+            const result = authenticator.verify({ token: cleanToken, secret });
+            console.log('Verification result:', result);
+            return result;
         } catch (error) {
+            console.error('Token verification error:', error);
             return false;
         }
     }

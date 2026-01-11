@@ -354,6 +354,7 @@ const Settings = {
                 try {
                     const accessToken = localStorage.getItem('accessToken');
                     const response = await fetch('https://localhost:8443/api/users/me/export', {
+                        credentials: 'include',
                         headers: { 'Authorization': `Bearer ${accessToken}` }
                     });
                     
@@ -394,6 +395,7 @@ const Settings = {
                     const accessToken = localStorage.getItem('accessToken');
                     const response = await fetch('https://localhost:8443/api/users/me', {
                         method: 'DELETE',
+                        credentials: 'include',
                         headers: { 'Authorization': `Bearer ${accessToken}` }
                     });
                     

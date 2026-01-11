@@ -36,14 +36,18 @@ export class FastifyApp {
     {
         DatabaseManager.getInstance();
         
-        await this.instance.register(cors, {
-            origin: true
-        });
+        // Register cookie plugin FIRST
         this.instance.register(cookie, {
             secret: process.env.COOKIE_SECRET,
             hook: 'onRequest',
             parseOptions: {} 
-        })
+        });
+
+        // Then register CORS with proper credentials handling
+        await this.instance.register(cors, {
+            origin: process.env.FRONTEND_URL || 'https://localhost:8443',
+            credentials: true
+        });
         await this.instance.register(Swagger);
         await this.instance.register(SwaggerUI);
 

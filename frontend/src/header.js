@@ -448,12 +448,63 @@ async function verify2FALogin() {
     }
 }
 
-function use2FABackupCode() {
-    const code = prompt('Enter your backup code:');
-    if (code) {
-        document.getElementById('loginTwoFactorCode').value = code;
-        verify2FALogin();
+async function verify2FABackupLogin() {
+    const code = document.getElementById('loginBackupCode').value;
+    
+    if (!code || code.length === 0) {
+        alert('Please enter a backup code');
+        return;
     }
+    
+    try {
+        const response = await fetch('https://localhost:8443/api/auth/2fa/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                tempToken: tempTwoFactorToken,
+                code: code
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            localStorage.setItem('accessToken', data.data.accessToken);
+            localStorage.setItem('refreshToken', data.data.refreshToken);
+            window.currentUser = data.data.user;
+            
+            close2FALoginModal();
+            updateAuthButton();
+            
+            alert('⚠️ Backup code used!');
+            
+            window.location.reload();
+        } else {
+            alert('❌ Invalid backup code. Please try again.');
+        }
+    } catch (error) {
+        console.error('Backup code error:', error);
+        alert('❌ Error. Please try again.');
+    }
+}
+
+
+function show2FACodeInput() {
+    document.getElementById('2FACodeSection').classList.remove('hidden');
+    document.getElementById('2FABackupCodeSection').classList.add('hidden');
+    document.getElementById('loginTwoFactorCode').value = '';
+    document.getElementById('loginTwoFactorCode').focus();
+}
+
+function show2FABackupCodeInput() {
+    document.getElementById('2FACodeSection').classList.add('hidden');
+    document.getElementById('2FABackupCodeSection').classList.remove('hidden');
+    document.getElementById('loginBackupCode').value = '';
+    document.getElementById('loginBackupCode').focus();
+}
+
+function use2FABackupCode() {
+    show2FABackupCodeInput();
 }
 
 // Attach 2FA event listeners when DOM is ready
@@ -467,6 +518,18 @@ setTimeout(() => {
     if (codeInput) {
         codeInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') verify2FALogin();
+        });
+    }
+
+    const verify2FABackupCodeBtn = document.getElementById('verify2FABackupCodeBtn');
+    if (verify2FABackupCodeBtn) {
+        verify2FABackupCodeBtn.addEventListener('click', verify2FABackupLogin);
+    }
+
+    const backupCodeInput = document.getElementById('loginBackupCode');
+    if (backupCodeInput) {
+        backupCodeInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') verify2FABackupLogin();
         });
     }
 }, 100);

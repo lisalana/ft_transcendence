@@ -75,6 +75,14 @@ export class UserModel {
         return statement.get(email) as User | undefined;
     }
 
+    findByOAuthState(oauthState: string): User | undefined {
+        // OAuth state is a temporary session identifier that maps to a user
+        // This would typically be stored in a sessions table or cache
+        // For now, this is a placeholder - implement based on your session management
+        const statement = this.db.prepare(`SELECT * FROM users WHERE oauth_state = ?`);
+        return statement.get(oauthState) as User | undefined;
+    }
+
     findAll(): User[] {
         const statement = this.db.prepare(`SELECT * FROM users ORDER BY created_at DESC`);
         return statement.all() as User[];

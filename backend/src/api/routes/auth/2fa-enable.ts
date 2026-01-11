@@ -17,6 +17,8 @@ export default class TwoFactorEnableRoute extends ApiRoute {
                 backupCodes: string[];
             };
 
+            console.log('Enabling 2FA with secret:', secret, 'token:', token, 'backupCodes:', backupCodes);
+
             if (!secret || !token || !backupCodes) {
                 return reply.status(400).send({
                     status: 'error',
