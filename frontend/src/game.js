@@ -90,60 +90,16 @@ const Game = {
                             <!-- Pause Menu -->
                             <div id="pauseMenu" class="pause-menu hidden">
                                 <div class="pause-content">
-                                    <h2 class="pause-title" data-i18n="game.pause.title">⏸️ ${t('game.pause.title')}</h2>
+                                    <h2 class="pause-title" data-i18n="game.pause.title">${t('game.pause.title')}</h2>
                                     <p class="pause-hint" data-i18n="game.pause.hint">${t('game.pause.hint')}</p>
                                     
                                     <div class="pause-buttons">
                                         <button class="pause-btn resume-btn" onclick="togglePause()" data-i18n="game.pause.resume">
-                                            ▶️ ${t('game.pause.resume')}
-                                        </button>
-                                        <button class="pause-btn settings-btn" onclick="showPauseSettings()" data-i18n="game.pause.settings">
-                                            ⚙️ ${t('game.pause.settings')}
+                                            ${t('game.pause.resume')}
                                         </button>
                                         <button class="pause-btn home-btn" onclick="Router.navigate('home')" data-i18n="game.pause.home">
-                                            🏠 ${t('game.pause.home')}
+                                            ${t('game.pause.home')}
                                         </button>
-                                    </div>
-                                </div>
-                                
-                                <!-- Settings overlay in pause menu -->
-                                <div id="pauseSettingsOverlay" class="hidden" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: flex; justify-content: center; align-items: center;">
-                                    <div style="max-width: 500px; width: 90%; padding: 30px; background: rgba(30, 30, 50, 0.9); border-radius: 20px; border: 2px solid rgba(102, 126, 234, 0.3);">
-                                        <h2 style="color: #667eea; margin-bottom: 20px; text-align: center;" data-i18n="game.pause.settingsTitle">⚙️ ${t('game.pause.settingsTitle')}</h2>
-                                        <p style="color: rgba(255,255,255,0.6); text-align: center; margin-bottom: 30px; font-size: 0.9rem;" data-i18n="game.pause.settingsHint">${t('game.pause.settingsHint')}</p>
-                                        
-                                        <div class="setting-item">
-                                            <label class="setting-label">🏓 ${t('game.settings.paddleSize')}</label>
-                                            <div class="slider-container">
-                                                <input type="range" id="pausePaddleSize" min="30" max="100" value="50" step="10" class="slider">
-                                                <span class="slider-value" id="pausePaddleSizeValue">50</span>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="setting-item">
-                                            <label class="setting-label">⚡ ${t('game.settings.ballSpeed')}</label>
-                                            <div class="slider-container">
-                                                <input type="range" id="pauseBallSpeed" min="1" max="5" value="3" class="slider">
-                                                <span class="slider-value" id="pauseBallSpeedValue">Normal</span>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="setting-item">
-                                            <label class="setting-label">🎯 ${t('game.settings.winScore')}</label>
-                                            <div class="slider-container">
-                                                <input type="range" id="pauseWinScore" min="3" max="21" value="11" class="slider">
-                                                <span class="slider-value" id="pauseWinScoreValue">11</span>
-                                            </div>
-                                        </div>
-                                        
-                                        <div style="display: flex; gap: 15px; margin-top: 30px;">
-                                            <button class="pause-btn" onclick="applyPauseSettings()" style="flex: 1; background: linear-gradient(135deg, #667eea, #764ba2);" data-i18n="game.pause.apply">
-                                                ✅ ${t('game.pause.apply')}
-                                            </button>
-                                            <button class="pause-btn" onclick="closePauseSettings()" style="flex: 1;" data-i18n="game.pause.cancel">
-                                                ❌ ${t('game.pause.cancel')}
-                                            </button>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
