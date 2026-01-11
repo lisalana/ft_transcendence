@@ -436,9 +436,11 @@ function initLobby() {
 
         card.innerHTML = `
             <h3>${playerName}${position}</h3>
-            <div class="status-badge" id="p${i}Status">Waiting for connection...</div>
             <div id="qr-p${i}" class="qr-placeholder"></div>
-            <div class="controls-hint">Scan to join</div>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+                <div class="status-badge" id="p${i}Status">Waiting for connection...</div>
+                <div class="controls-hint">Scan to join</div>
+            </div>
         `;
         lobbyInfo.appendChild(card);
 
