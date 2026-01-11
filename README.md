@@ -77,6 +77,17 @@ make fclean
 
 ## 🔧 Configuration OAuth
 
+### Prérequis : Configuration de l'environnement
+1. Copiez le fichier d'exemple d'environnement :
+```bash
+cp backend/.env.example backend/.env
+```
+
+2. Éditez `backend/.env` avec vos clés OAuth :
+```bash
+nano backend/.env  # ou votre éditeur préféré
+```
+
 ### Google OAuth
 1. Allez sur [Google Cloud Console](https://console.cloud.google.com/)
 2. Créez un projet OAuth
