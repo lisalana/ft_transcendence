@@ -55,12 +55,14 @@ const Home = {
                         </div>
                     </div>
 
-                    <!-- Profile Card -->
-                    <div class="card disabled">
-                        <span class="card-badge coming-soon" data-i18n="home.profile.badge">${t('home.profile.badge')}</span>
+                    <!-- Tournament Card -->
+                    <div class="card" onclick="Router.navigate('tournament')" tabindex="0" role="button" aria-label="Tournament" onkeypress="if(event.key==='Enter') Router.navigate('tournament')">
+                        <span class="card-badge">NEW</span>
                         <svg class="card-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <circle cx="50" cy="35" r="15" stroke="url(#gradient3)" stroke-width="3" fill="rgba(79, 172, 254, 0.1)"/>
-                            <path d="M25 75 Q25 55 50 55 Q75 55 75 75" stroke="url(#gradient3)" stroke-width="3" fill="rgba(79, 172, 254, 0.1)"/>
+                            <path d="M20 30 H40 V70 H20" stroke="url(#gradient3)" stroke-width="3" fill="none"/>
+                            <path d="M80 30 H60 V70 H80" stroke="url(#gradient3)" stroke-width="3" fill="none"/>
+                            <line x1="40" y1="50" x2="60" y2="50" stroke="url(#gradient3)" stroke-width="3"/>
+                            <circle cx="50" cy="50" r="5" fill="url(#gradient3)"/>
                             <defs>
                                 <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
                                     <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
@@ -69,8 +71,8 @@ const Home = {
                             </defs>
                         </svg>
                         <div>
-                            <h2 class="card-title" data-i18n="home.profile.title">${t('home.profile.title')}</h2>
-                            <p class="card-description" data-i18n="home.profile.description">${t('home.profile.description')}</p>
+                            <h2 class="card-title">Tournament</h2>
+                            <p class="card-description">4-Player Local Tournament</p>
                         </div>
                     </div>
 
