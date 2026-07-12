@@ -1,8 +1,8 @@
-# ft_transcendence 🏓
+# ft_transcendence 
 
 Jeu Pong multijoueur en temps réel avec authentification OAuth, contrôleurs mobiles et système de classement.
 
-## 🚀 Démarrage rapide
+##  Démarrage rapide
 
 ```bash
 # Copier et configurer l'environnement
@@ -19,14 +19,14 @@ make logs
 make down
 ```
 
-## 🌐 Accès
+##  Accès
 - **Frontend** : https://localhost:8443
 
 ⚠️ Certificat SSL auto-signé — accepter l'avertissement du navigateur.
 
 ---
 
-## 🔧 Configuration OAuth (obligatoire)
+## 🔧 Configuration OAuth
 
 ### Google OAuth
 1. [Google Cloud Console](https://console.cloud.google.com/) → créer un projet OAuth
@@ -44,7 +44,7 @@ make down
 
 ---
 
-## 🏆 Modules 42 — État de réalisation
+##  Modules 42 — État de réalisation
 
 ### 🟨 Major Modules (10 pts)
 - ✅ **Use a framework to build the backend** — Fastify + TypeScript
@@ -65,14 +65,14 @@ make down
 
 ---
 
-## 📝 Prérequis
+##  Prérequis
 - Docker & Docker Compose
 - Make
 - Git
 
 ---
 
-## 🎮 Comment jouer
+##  Comment jouer
 
 1. Se connecter via Google ou GitHub
 2. Créer une partie (2, 3 ou 4 joueurs)
